@@ -1,0 +1,264 @@
+# LazyBeagle Dashboard Configuration
+# This file controls all aspects of your home network dashboard
+
+# API Keys and External Services
+api_keys:
+  unsplash:
+    access_key: 'QSBhos-6WIEr4v0s7tFNHrSgGPTm9tfybyNAMW596Wg' # Your Unsplash Access Key
+    secret_key: 'CmrJ-0YwWwGQ2g-dCaT1plqkxyVC5TVzGvT489fUs0E' # Your Unsplash Secret Key (optional, for write operations)
+  openweather:
+    api_key: 'fc315fbd1c64cd2f058a9d33789a1993' # Your OpenWeatherMap API Key
+  # Add more API keys as needed for other services
+
+# Dashboard Settings
+dashboard:
+  # Background settings
+  background:
+    theme: 'nature' # Theme: nature, urban, minimal, space, ocean, mountains
+    rotation_enabled: true # Enable automatic background rotation
+    rotation_interval: 30 # Minutes between background changes
+    quality: 80 # Image quality (1-100)
+    blur_overlay: 0.3 # Background blur overlay (0-1)
+
+  # Time and locale settings
+  time:
+    format: '12' # Time format: "12" or "24"
+    timezone: 'auto' # Timezone: "auto" or specific timezone like "America/New_York"
+
+  # Weather settings
+  weather:
+    location: 'Surrey, Canada' # Default weather location
+    units: 'metric' # Units: "metric" (Celsius), "imperial" (Fahrenheit), "kelvin"
+    refresh_interval: 10 # Minutes between weather updates
+
+  # Grid layout settings
+  grid:
+    columns: 6 # Number of grid columns
+    rows: 4 # Number of grid rows
+    gap: 16 # Gap between grid items (pixels)
+    padding: 24 # Padding around grid container (pixels)
+
+# Card Layout Configuration
+# This defines which cards appear where on your dashboard
+layout:
+  # Main functional cards
+  clock:
+    enabled: true
+    position: 'clock' # Grid area position
+    settings:
+      show_seconds: false
+      show_date: true
+      show_temperature: true
+
+  search:
+    enabled: true
+    position: 'search' # Grid area position
+    settings:
+      default_engine: 'google'
+      show_suggestions: true
+      max_suggestions: 5
+
+  weather:
+    enabled: true
+    position: 'weather' # Grid area position
+    settings:
+      show_details: true
+      show_forecast: false
+
+  # Quick link cards
+  quick_links:
+    enabled: true
+    position: 'links' # Grid area position
+    cards:
+      - name: 'Google'
+        url: 'https://google.com'
+        description: 'Search'
+        icon: '🌐'
+        enabled: true
+
+      - name: 'YouTube'
+        url: 'https://youtube.com'
+        description: 'Videos'
+        icon: '📺'
+        enabled: true
+
+      - name: 'GitHub'
+        url: 'https://github.com'
+        description: 'Code'
+        icon: '⚡'
+        enabled: true
+
+# Home Network Services
+# Configure your local network services here
+services:
+  # Media Services
+  - name: 'Plex'
+    url: 'http://192.168.1.100:32400'
+    description: 'Media Server'
+    icon: '🎬'
+    category: 'media'
+    api_endpoint: '/status/sessions'
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  - name: 'Jellyfin'
+    url: 'http://192.168.1.100:8096'
+    description: 'Media Server'
+    icon: '🎭'
+    category: 'media'
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  # Download Services
+  - name: 'Sonarr'
+    url: 'https://sonarr.themysterymachine.net'
+    description: 'TV Shows'
+    icon: '📺'
+    category: 'download'
+    api_key: ''
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  - name: 'Radarr'
+    url: 'http://radarr.themysterymachine.net'
+    description: 'Movies'
+    icon: '🎥'
+    category: 'download'
+    api_key: ''
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  - name: 'Readarr'
+    url: 'http://readarr.themysterymachine.net'
+    description: 'Books'
+    icon: '📚'
+    category: 'download'
+    api_key: ''
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  # Network Services
+  - name: 'Pi-hole'
+    url: 'https://pihole.themysterymachine.net'
+    description: 'DNS Filter'
+    icon: '🛡️'
+    category: 'network'
+    api_key: ''
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  - name: 'Router'
+    url: 'https://gateway.themysterymachine.net'
+    description: 'Network Admin'
+    icon: '🌐'
+    category: 'network'
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  # Monitoring Services
+  - name: 'Portainer'
+    url: 'https://portainer.themysterymachine.net'
+    description: 'Docker Management'
+    icon: '🐳'
+    category: 'monitoring'
+    enabled: false
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  - name: 'Zabbix'
+    url: 'https://zabbix.themysterymachine.net'
+    description: 'Monitoring'
+    icon: '📊'
+    category: 'monitoring'
+    enabled: false
+    grid_width: 2
+    grid_height: 1
+    position: 'auto'
+
+# Search Engine Configuration
+search_engines:
+  - id: 'google'
+    name: 'Google'
+    url: 'https://www.google.com/search?q='
+    icon: 'https://www.google.com/favicon.ico'
+    placeholder: 'Search Google or type a URL'
+    default: true
+
+  - id: 'duckduckgo'
+    name: 'DuckDuckGo'
+    url: 'https://duckduckgo.com/?q='
+    icon: 'https://duckduckgo.com/favicon.ico'
+    placeholder: 'Search DuckDuckGo'
+    default: false
+
+  - id: 'youtube'
+    name: 'YouTube'
+    url: 'https://www.youtube.com/results?search_query='
+    icon: 'https://www.youtube.com/favicon.ico'
+    placeholder: 'Search YouTube'
+    default: false
+
+# Theme Configuration
+themes:
+  nature:
+    name: 'Nature'
+    keywords: ['nature', 'forest', 'mountains', 'landscape', 'trees', 'wilderness']
+    collections: ['1114848', '1065976']
+
+  urban:
+    name: 'Urban'
+    keywords: ['city', 'urban', 'architecture', 'buildings', 'skyline', 'street']
+    collections: ['1114849', '1065396']
+
+  minimal:
+    name: 'Minimal'
+    keywords: ['minimal', 'clean', 'simple', 'abstract', 'geometric', 'modern']
+    collections: ['1114847', '1065392']
+
+  space:
+    name: 'Space'
+    keywords: ['space', 'galaxy', 'stars', 'nebula', 'cosmos', 'astronomy']
+    collections: ['1114850', '1065397']
+
+  ocean:
+    name: 'Ocean'
+    keywords: ['ocean', 'sea', 'water', 'waves', 'beach', 'coastal']
+    collections: ['1114851', '1065398']
+
+  mountains:
+    name: 'Mountains'
+    keywords: ['mountains', 'peaks', 'alpine', 'snow', 'hiking', 'summit']
+    collections: ['1114852', '1065399']
+
+# Application Metadata
+app:
+  name: 'LazyBeagle'
+  version: '1.0.0'
+  author: 'Rogerio Caceres'
+  description: 'Home Network Dashboard'
+
+# Security Settings
+security:
+  # Enable/disable external API calls
+  allow_external_apis: true
+
+  # Enable/disable local network service calls
+  allow_local_network: true
+
+  # CORS settings for API calls
+  cors_enabled: true
