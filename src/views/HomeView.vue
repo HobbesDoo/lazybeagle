@@ -12,6 +12,7 @@ import configService from '../services/config.js'
 const showSettingsPanel = ref(false)
 const currentBackground = ref('')
 const backgroundService = new BackgroundService(configService)
+const enabledServices = ref([])
 
 // Settings from config service
 const settings = reactive({
@@ -32,6 +33,12 @@ const loadSettings = async () => {
   settings.timeFormat = dashboardSettings.time.format
   settings.gridColumns = dashboardSettings.grid.columns
   settings.gridRows = dashboardSettings.grid.rows
+
+  // Load enabled services
+  enabledServices.value = configService.getEnabledServices()
+  console.log('Loaded enabled services:', enabledServices.value)
+  console.log('All services from config:', configService.config.services)
+  console.log('Config loaded?', configService.isLoaded.value)
 }
 
 // Update background based on theme
@@ -135,63 +142,21 @@ onUnmounted(() => {
 
       <!-- Quick Links - Bottom -->
       <div class="links-section">
+        <div
+          v-if="enabledServices.length === 0"
+          style="color: white; text-align: center; padding: 20px"
+        >
+          No enabled services found. Services count: {{ enabledServices.length }}
+        </div>
         <WebLinkCard
-          service-name="Google"
-          url="https://google.com"
-          description="Search"
-          icon="🌐"
-          :grid-width="1"
-          :grid-height="1"
-          variant="default"
-        />
-
-        <WebLinkCard
-          service-name="YouTube"
-          url="https://youtube.com"
-          description="Videos"
-          icon="📺"
-          :grid-width="1"
-          :grid-height="1"
-          variant="default"
-        />
-
-        <WebLinkCard
-          service-name="Facebook"
-          url="https://facebook.com"
-          description="Social"
-          icon="📘"
-          :grid-width="1"
-          :grid-height="1"
-          variant="default"
-        />
-
-        <WebLinkCard
-          service-name="Discord"
-          url="https://discord.com"
-          description="Chat"
-          icon="💬"
-          :grid-width="1"
-          :grid-height="1"
-          variant="default"
-        />
-
-        <WebLinkCard
-          service-name="GitHub"
-          url="https://github.com"
-          description="Code"
-          icon="⚡"
-          :grid-width="1"
-          :grid-height="1"
-          variant="default"
-        />
-
-        <WebLinkCard
-          service-name="Bing"
-          url="https://bing.com"
-          description="Search"
-          icon="🔍"
-          :grid-width="1"
-          :grid-height="1"
+          v-for="service in enabledServices"
+          :key="service.name"
+          :service-name="service.name"
+          :url="service.url"
+          :description="service.description"
+          :icon="service.icon"
+          :grid-width="service.grid_width || 1"
+          :grid-height="service.grid_height || 1"
           variant="default"
         />
       </div>

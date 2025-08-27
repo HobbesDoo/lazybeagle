@@ -141,19 +141,8 @@ export class ConfigService {
     this.error.value = null
 
     try {
-      // If not forcing reload, try localStorage first
-      if (!forceReload) {
-        const localConfig = this.loadFromLocalStorage()
-        if (localConfig) {
-          console.log('Loading config from localStorage:', localConfig)
-          Object.assign(this.config, localConfig)
-          this.isLoaded.value = true
-          this.isLoading.value = false
-          return this.config
-        }
-      } else {
-        console.log('Force reloading config from YAML file...')
-      }
+      // ALWAYS load from YAML first, then merge with localStorage changes
+      console.log('Loading config from YAML file...')
 
       // Load from YAML file
       const response = await fetch('/config.yaml')
@@ -167,14 +156,26 @@ export class ConfigService {
 
       // Merge with defaults to ensure all properties exist
       const mergedConfig = this.mergeWithDefaults(yamlConfig)
-      console.log('Merged config:', mergedConfig)
+      console.log('Merged YAML config:', mergedConfig)
+      console.log('Services in YAML config:', mergedConfig.services)
+
+      // Apply the YAML config first
       Object.assign(this.config, mergedConfig)
 
-      // Save to localStorage for future modifications (only if not force reloading)
+      // Then apply any localStorage overrides (for user modifications like API keys)
       if (!forceReload) {
-        this.saveToLocalStorage()
-      } else {
-        console.log('Skipping localStorage save due to force reload')
+        const localConfig = this.loadFromLocalStorage()
+        if (localConfig) {
+          console.log('Applying localStorage overrides for API keys and settings...')
+          // Only override specific user settings, not the entire services array
+          if (localConfig.api_keys) {
+            Object.assign(this.config.api_keys, localConfig.api_keys)
+          }
+          if (localConfig.dashboard) {
+            Object.assign(this.config.dashboard, localConfig.dashboard)
+          }
+          // DON'T override services - keep them from YAML
+        }
       }
 
       this.isLoaded.value = true
@@ -357,7 +358,15 @@ export class ConfigService {
    * Get enabled services
    */
   getEnabledServices() {
-    return this.config.services.filter((service) => service.enabled)
+    console.log('getEnabledServices called, all services:', this.config.services)
+    console.log(
+      'Services details:',
+      this.config.services.map((s) => ({ name: s.name, enabled: s.enabled })),
+    )
+    const enabled = this.config.services.filter((service) => service.enabled)
+    console.log('Filtered enabled services:', enabled)
+    console.log('Enabled services count:', enabled.length)
+    return enabled
   }
 
   /**
@@ -381,8 +390,10 @@ export class ConfigService {
    * Get default search engine
    */
   getDefaultSearchEngine() {
+    const defaultEngineId = this.config.layout?.search?.settings?.default_engine || 'google'
     return (
-      this.config.search_engines.find((engine) => engine.default) || this.config.search_engines[0]
+      this.config.search_engines.find((engine) => engine.id === defaultEngineId) ||
+      this.config.search_engines[0]
     )
   }
 

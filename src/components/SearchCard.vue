@@ -11,7 +11,7 @@
     <div class="search-container">
       <div class="search-input-wrapper">
         <!-- Search Engine Icon -->
-        <div class="search-engine-icon">
+        <div v-if="currentSearchEngine" class="search-engine-icon">
           <img
             :src="currentSearchEngine.icon"
             :alt="currentSearchEngine.name"
@@ -74,11 +74,14 @@
     </div>
 
     <!-- Search Engine Selector -->
-    <div class="search-engines">
+    <div v-if="searchEngines.length > 0" class="search-engines">
       <button
         v-for="engine in searchEngines"
         :key="engine.id"
-        :class="['engine-button', { 'engine-active': currentSearchEngine.id === engine.id }]"
+        :class="[
+          'engine-button',
+          { 'engine-active': currentSearchEngine && currentSearchEngine.id === engine.id },
+        ]"
         @click="selectSearchEngine(engine)"
         :title="engine.name"
       >
@@ -91,51 +94,39 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import configService from '../services/config.js'
 
-// Search engines configuration
-const searchEngines = ref([
-  {
-    id: 'google',
-    name: 'Google',
-    icon: 'https://www.google.com/favicon.ico',
-    url: 'https://www.google.com/search?q=',
-    placeholder: 'Search Google or type a URL',
-  },
-  {
-    id: 'bing',
-    name: 'Bing',
-    icon: 'https://www.bing.com/favicon.ico',
-    url: 'https://www.bing.com/search?q=',
-    placeholder: 'Search with Bing',
-  },
-  {
-    id: 'duckduckgo',
-    name: 'DuckDuckGo',
-    icon: 'https://duckduckgo.com/favicon.ico',
-    url: 'https://duckduckgo.com/?q=',
-    placeholder: 'Search DuckDuckGo',
-  },
-  {
-    id: 'youtube',
-    name: 'YouTube',
-    icon: 'https://www.youtube.com/favicon.ico',
-    url: 'https://www.youtube.com/results?search_query=',
-    placeholder: 'Search YouTube',
-  },
-])
+// Search engines configuration - loaded from config
+const searchEngines = ref([])
 
 // Reactive state
 const searchQuery = ref('')
-const currentSearchEngine = ref(searchEngines.value[0])
+const currentSearchEngine = ref(null)
 const showSuggestions = ref(false)
 const suggestions = ref([])
 const searchInput = ref(null)
 
 // Computed properties
-const searchPlaceholder = computed(() => currentSearchEngine.value.placeholder)
+const searchPlaceholder = computed(() => currentSearchEngine.value?.placeholder || 'Search...')
 
 // Recent searches (stored in localStorage)
 const recentSearches = ref([])
+
+// Load search engines from config
+const loadSearchEngines = async () => {
+  await configService.loadConfig()
+  searchEngines.value = configService.config.search_engines || []
+  console.log('Loaded search engines from config:', searchEngines.value)
+
+  // Set default search engine if none is set
+  if (searchEngines.value.length > 0 && !currentSearchEngine.value) {
+    const defaultEngineId =
+      configService.config.layout?.search?.settings?.default_engine || 'google'
+    const engine =
+      searchEngines.value.find((e) => e.id === defaultEngineId) || searchEngines.value[0]
+    currentSearchEngine.value = engine
+  }
+}
 
 // Load recent searches from localStorage
 const loadRecentSearches = () => {
@@ -203,7 +194,7 @@ const performSearch = () => {
   if (isUrl) {
     const url = query.startsWith('http') ? query : `https://${query}`
     window.open(url, '_blank', 'noopener,noreferrer')
-  } else {
+  } else if (currentSearchEngine.value) {
     // Perform search with selected engine
     const searchUrl = currentSearchEngine.value.url + encodeURIComponent(query)
     window.open(searchUrl, '_blank', 'noopener,noreferrer')
@@ -220,7 +211,7 @@ const performSearch = () => {
 // Load preferred search engine
 const loadPreferences = () => {
   const preferredEngine = localStorage.getItem('preferred-search-engine')
-  if (preferredEngine) {
+  if (preferredEngine && searchEngines.value.length > 0) {
     const engine = searchEngines.value.find((e) => e.id === preferredEngine)
     if (engine) {
       currentSearchEngine.value = engine
@@ -229,7 +220,8 @@ const loadPreferences = () => {
 }
 
 // Initialize component
-onMounted(() => {
+onMounted(async () => {
+  await loadSearchEngines()
   loadRecentSearches()
   loadPreferences()
 

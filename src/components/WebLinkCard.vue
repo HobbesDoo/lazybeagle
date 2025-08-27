@@ -6,37 +6,20 @@
 -->
 
 <template>
-  <BaseCard
-    :title="title"
-    :grid-width="gridWidth"
-    :grid-height="gridHeight"
-    :variant="variant"
-    :clickable="true"
-    @click="handleClick"
-  >
-    <div class="web-link-content">
-      <!-- Service Icon -->
-      <div class="service-icon" v-if="icon || iconUrl">
-        <img v-if="iconUrl" :src="iconUrl" :alt="`${serviceName} icon`" class="icon-image" />
-        <span v-else class="icon-text">{{ icon }}</span>
-      </div>
-
-      <!-- Service Info -->
-      <div class="service-info">
-        <h4 class="service-name">{{ serviceName }}</h4>
-        <p v-if="description" class="service-description">{{ description }}</p>
-        <div class="service-url">{{ displayUrl }}</div>
-      </div>
-
-      <!-- Status Indicator -->
-      <div v-if="showStatus" :class="['status-indicator', statusClass]" :title="statusText"></div>
+  <div class="web-link-card" @click="handleClick">
+    <!-- App Icon -->
+    <div class="app-icon">
+      <img v-if="iconUrl" :src="iconUrl" :alt="`${serviceName} icon`" class="icon-image" />
+      <span v-else class="icon-emoji">{{ icon }}</span>
     </div>
-  </BaseCard>
+
+    <!-- App Name -->
+    <div class="app-name">{{ serviceName }}</div>
+  </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import BaseCard from './BaseCard.vue'
 
 const props = defineProps({
   /**
@@ -193,137 +176,82 @@ const handleClick = () => {
 </script>
 
 <style scoped>
-.web-link-content {
+.web-link-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  height: 100%;
-  padding: 4px 0;
+  gap: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 16px;
+  background: transparent;
 }
 
-.service-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+.web-link-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.app-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: var(--icon-background, #f3f4f6);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .icon-image {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
-.icon-text {
-  font-size: 1.5rem;
-  font-weight: 500;
+.icon-emoji {
+  font-size: 32px;
+  line-height: 1;
 }
 
-.service-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.service-name {
-  margin: 0 0 4px 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary, #111827);
-  line-height: 1.25;
-}
-
-.service-description {
-  margin: 0 0 4px 0;
+.app-name {
   font-size: 0.875rem;
-  color: var(--text-secondary, #6b7280);
-  line-height: 1.25;
+  font-weight: 500;
+  color: white;
+  text-align: center;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.service-url {
-  font-size: 0.75rem;
-  color: var(--text-muted, #9ca3af);
-  font-family: monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.status-indicator {
-  flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-left: auto;
-}
-
-.status-online {
-  background-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-}
-
-.status-offline {
-  background-color: #ef4444;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-}
-
-.status-unknown {
-  background-color: #6b7280;
-  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .service-icon {
-    --icon-background: #374151;
-  }
-
-  .service-name {
-    --text-primary: #f9fafb;
-  }
-
-  .service-description {
-    --text-secondary: #d1d5db;
-  }
-
-  .service-url {
-    --text-muted: #9ca3af;
-  }
-}
-
-/* Responsive adjustments */
+/* Responsive design */
 @media (max-width: 768px) {
-  .web-link-content {
-    gap: 8px;
-  }
-
-  .service-icon {
-    width: 32px;
-    height: 32px;
+  .app-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
   }
 
   .icon-image {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
   }
 
-  .icon-text {
-    font-size: 1.25rem;
+  .icon-emoji {
+    font-size: 26px;
   }
 
-  .service-name {
-    font-size: 0.875rem;
-  }
-
-  .service-description {
-    font-size: 0.75rem;
+  .app-name {
+    font-size: 0.8rem;
+    max-width: 70px;
   }
 }
 </style>

@@ -93,21 +93,11 @@ layout:
 services:
   # Media Services
   - name: 'Plex'
-    url: 'http://192.168.1.100:32400'
+    url: 'https://plex.themysterymachine.net'
     description: 'Media Server'
     icon: '🎬'
     category: 'media'
     api_endpoint: '/status/sessions'
-    enabled: false
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  - name: 'Jellyfin'
-    url: 'http://192.168.1.100:8096'
-    description: 'Media Server'
-    icon: '🎭'
-    category: 'media'
     enabled: false
     grid_width: 1
     grid_height: 1
@@ -120,24 +110,24 @@ services:
     icon: '📺'
     category: 'download'
     api_key: ''
-    enabled: false
+    enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
 
   - name: 'Radarr'
-    url: 'http://radarr.themysterymachine.net'
+    url: 'https://radarr.themysterymachine.net'
     description: 'Movies'
     icon: '🎥'
     category: 'download'
     api_key: ''
-    enabled: false
+    enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
 
   - name: 'Readarr'
-    url: 'http://readarr.themysterymachine.net'
+    url: 'https://readarr.themysterymachine.net'
     description: 'Books'
     icon: '📚'
     category: 'download'
@@ -154,7 +144,7 @@ services:
     icon: '🛡️'
     category: 'network'
     api_key: ''
-    enabled: false
+    enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
