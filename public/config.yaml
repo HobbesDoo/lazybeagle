@@ -65,6 +65,27 @@ layout:
       show_details: true
       show_forecast: false
 
+  # Upcoming releases cards
+  upcoming_releases:
+    enabled: true
+    position: 'releases' # Grid area position
+    cards:
+      - service_type: 'sonarr'
+        title: 'Upcoming TV'
+        grid_width: 2
+        grid_height: 2
+        max_releases: 4
+        refresh_interval: 30
+        enabled: true
+
+      - service_type: 'radarr'
+        title: 'Upcoming Movies'
+        grid_width: 2
+        grid_height: 2
+        max_releases: 4
+        refresh_interval: 30
+        enabled: true
+
   # Quick link cards
   quick_links:
     enabled: true
@@ -91,48 +112,36 @@ layout:
 # Home Network Services
 # Configure your local network services here
 services:
-  # Media Services
-  - name: 'Plex'
-    url: 'https://plex.themysterymachine.net'
-    description: 'Media Server'
-    icon: '🎬'
-    category: 'media'
-    api_endpoint: '/status/sessions'
-    enabled: false
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
   # Download Services
-  - name: 'Sonarr'
+  - name: 'TV Shows'
     url: 'https://sonarr.themysterymachine.net'
     description: 'TV Shows'
     icon: '📺'
     category: 'download'
-    api_key: ''
+    api_key: '1098ec9f76e0439c9ddad8652ed87c8e' # Add your Sonarr API key
     enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
 
-  - name: 'Radarr'
+  - name: 'Movies'
     url: 'https://radarr.themysterymachine.net'
     description: 'Movies'
     icon: '🎥'
     category: 'download'
-    api_key: ''
+    api_key: 'b2c75a609dfe49f5a48f73c7606caa78' # Add your Radarr API key
     enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
 
-  - name: 'Readarr'
+  - name: 'Books'
     url: 'https://readarr.themysterymachine.net'
     description: 'Books'
     icon: '📚'
     category: 'download'
     api_key: ''
-    enabled: false
+    enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
@@ -154,7 +163,7 @@ services:
     description: 'Network Admin'
     icon: '🌐'
     category: 'network'
-    enabled: false
+    enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
@@ -165,7 +174,7 @@ services:
     description: 'Docker Management'
     icon: '🐳'
     category: 'monitoring'
-    enabled: false
+    enabled: true
     grid_width: 1
     grid_height: 1
     position: 'auto'
@@ -175,7 +184,7 @@ services:
     description: 'Monitoring'
     icon: '📊'
     category: 'monitoring'
-    enabled: false
+    enabled: true
     grid_width: 2
     grid_height: 1
     position: 'auto'
@@ -187,6 +196,7 @@ search_engines:
     url: 'https://www.google.com/search?q='
     icon: 'https://www.google.com/favicon.ico'
     placeholder: 'Search Google or type a URL'
+    display_type: 'new_tab' # 'new_tab' or 'popup'
     default: true
 
   - id: 'duckduckgo'
@@ -194,6 +204,7 @@ search_engines:
     url: 'https://duckduckgo.com/?q='
     icon: 'https://duckduckgo.com/favicon.ico'
     placeholder: 'Search DuckDuckGo'
+    display_type: 'new_tab'
     default: false
 
   - id: 'youtube'
@@ -201,6 +212,25 @@ search_engines:
     url: 'https://www.youtube.com/results?search_query='
     icon: 'https://www.youtube.com/favicon.ico'
     placeholder: 'Search YouTube'
+    display_type: 'new_tab'
+    default: false
+
+  - id: 'sonarr'
+    name: 'Sonarr'
+    url: 'lookup' # Special indicator for API-based search
+    icon: '📺'
+    placeholder: 'Search for TV Shows'
+    display_type: 'popup'
+    api_type: 'sonarr'
+    default: false
+
+  - id: 'radarr'
+    name: 'Radarr'
+    url: 'lookup' # Special indicator for API-based search
+    icon: '🎬'
+    placeholder: 'Search for Movies'
+    display_type: 'popup'
+    api_type: 'radarr'
     default: false
 
 # Theme Configuration

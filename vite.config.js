@@ -6,13 +6,20 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // Commented out proxy due to network issues - will use direct URLs with better fallback
+  // server: {
+  //   proxy: {
+  //     '/api/radarr-posters': {
+  //       target: 'https://radarr.themysterymachine.net',
+  //       changeOrigin: true,
+  //       rewrite: (path) => path.replace(/^\/api\/radarr-posters/, '/api/v3/mediacover'),
+  //     },
+  //   },
+  // },
 })

@@ -10,14 +10,29 @@
     <!-- Search Input -->
     <div class="search-container">
       <div class="search-input-wrapper">
-        <!-- Search Engine Icon -->
-        <div v-if="currentSearchEngine" class="search-engine-icon">
-          <img
-            :src="currentSearchEngine.icon"
-            :alt="currentSearchEngine.name"
-            class="engine-icon"
-          />
-        </div>
+        <!-- Provider Button (replaces engine icon) -->
+        <button
+          v-if="currentSearchEngine"
+          class="provider-button"
+          @click="toggleProviderDropdown"
+          :title="`Search with ${currentSearchEngine.name}`"
+        >
+          <span v-if="currentSearchEngine.icon.startsWith('http')" class="provider-icon">
+            <img :src="currentSearchEngine.icon" :alt="currentSearchEngine.name" />
+          </span>
+          <span v-else class="provider-emoji">{{ currentSearchEngine.icon }}</span>
+          <svg
+            class="dropdown-arrow"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="6,9 12,15 18,9"></polyline>
+          </svg>
+        </button>
 
         <!-- Search Input -->
         <input
@@ -48,6 +63,28 @@
         </button>
       </div>
 
+      <!-- Provider Dropdown -->
+      <div v-if="showProviderDropdown" class="provider-dropdown">
+        <button
+          v-for="engine in searchEngines"
+          :key="engine.id"
+          class="provider-item"
+          @click="selectSearchEngine(engine)"
+          :class="{
+            'provider-active': currentSearchEngine && currentSearchEngine.id === engine.id,
+          }"
+        >
+          <span v-if="engine.icon.startsWith('http')" class="provider-item-icon">
+            <img :src="engine.icon" :alt="engine.name" />
+          </span>
+          <span v-else class="provider-item-emoji">{{ engine.icon }}</span>
+          <span class="provider-name">{{ engine.name }}</span>
+          <span v-if="currentSearchEngine && currentSearchEngine.id === engine.id" class="checkmark"
+            >✓</span
+          >
+        </button>
+      </div>
+
       <!-- Search Suggestions -->
       <div v-if="showSuggestions && suggestions.length > 0" class="suggestions-dropdown">
         <button
@@ -72,23 +109,6 @@
         </button>
       </div>
     </div>
-
-    <!-- Search Engine Selector -->
-    <div v-if="searchEngines.length > 0" class="search-engines">
-      <button
-        v-for="engine in searchEngines"
-        :key="engine.id"
-        :class="[
-          'engine-button',
-          { 'engine-active': currentSearchEngine && currentSearchEngine.id === engine.id },
-        ]"
-        @click="selectSearchEngine(engine)"
-        :title="engine.name"
-      >
-        <img :src="engine.icon" :alt="engine.name" class="engine-button-icon" />
-        <span class="engine-name">{{ engine.name }}</span>
-      </button>
-    </div>
   </div>
 </template>
 
@@ -103,6 +123,7 @@ const searchEngines = ref([])
 const searchQuery = ref('')
 const currentSearchEngine = ref(null)
 const showSuggestions = ref(false)
+const showProviderDropdown = ref(false)
 const suggestions = ref([])
 const searchInput = ref(null)
 
@@ -162,9 +183,16 @@ const handleInput = () => {
   }
 }
 
+// Toggle provider dropdown
+const toggleProviderDropdown = () => {
+  showProviderDropdown.value = !showProviderDropdown.value
+  showSuggestions.value = false // Close suggestions when opening provider dropdown
+}
+
 // Select a search engine
 const selectSearchEngine = (engine) => {
   currentSearchEngine.value = engine
+  showProviderDropdown.value = false // Close dropdown after selection
   // Save preference
   localStorage.setItem('preferred-search-engine', engine.id)
 }
@@ -183,10 +211,17 @@ const hideSuggestions = () => {
   }, 150)
 }
 
+// Define emits for parent communication
+const emit = defineEmits(['openSearchPopup'])
+
 // Perform search
-const performSearch = () => {
+const performSearch = async () => {
   const query = searchQuery.value.trim()
-  if (!query) return
+  if (!query || !currentSearchEngine.value) return
+
+  // Close any open dropdowns
+  showSuggestions.value = false
+  showProviderDropdown.value = false
 
   // Check if it's a URL
   const isUrl = /^https?:\/\//.test(query) || /^\w+\.\w+/.test(query)
@@ -194,10 +229,33 @@ const performSearch = () => {
   if (isUrl) {
     const url = query.startsWith('http') ? query : `https://${query}`
     window.open(url, '_blank', 'noopener,noreferrer')
-  } else if (currentSearchEngine.value) {
-    // Perform search with selected engine
-    const searchUrl = currentSearchEngine.value.url + encodeURIComponent(query)
-    window.open(searchUrl, '_blank', 'noopener,noreferrer')
+  } else {
+    const engine = currentSearchEngine.value
+
+    if (engine.display_type === 'popup' && engine.api_type) {
+      // Handle API-based search with popup
+      try {
+        const results = await performApiSearch(engine.api_type, query)
+        emit('openSearchPopup', {
+          provider: engine,
+          query: query,
+          results: results,
+        })
+      } catch (error) {
+        console.error('API search failed:', error)
+        // Fallback to showing error in popup
+        emit('openSearchPopup', {
+          provider: engine,
+          query: query,
+          results: [],
+          error: error.message,
+        })
+      }
+    } else {
+      // Handle traditional search engines (new tab)
+      const searchUrl = engine.url + encodeURIComponent(query)
+      window.open(searchUrl, '_blank', 'noopener,noreferrer')
+    }
   }
 
   // Save to recent searches
@@ -205,7 +263,32 @@ const performSearch = () => {
 
   // Clear input
   searchQuery.value = ''
-  showSuggestions.value = false
+}
+
+// Perform API search for Sonarr/Radarr
+const performApiSearch = async (apiType, query) => {
+  const serviceConfig = configService.getServiceByType(apiType)
+  if (!serviceConfig?.url || !serviceConfig?.api_key) {
+    throw new Error(`${apiType} service not configured`)
+  }
+
+  const baseUrl = serviceConfig.url.replace(/\/$/, '')
+  const apiKey = serviceConfig.api_key
+  const endpoint = apiType === 'sonarr' ? '/api/v3/series/lookup' : '/api/v3/movie/lookup'
+
+  const response = await fetch(`${baseUrl}${endpoint}?term=${encodeURIComponent(query)}`, {
+    headers: {
+      'X-Api-Key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    mode: 'cors',
+  })
+
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status} ${response.statusText}`)
+  }
+
+  return await response.json()
 }
 
 // Load preferred search engine
@@ -267,15 +350,98 @@ onMounted(async () => {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.search-engine-icon {
+.provider-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   flex-shrink: 0;
   margin-right: 12px;
 }
 
-.engine-icon {
+.provider-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.provider-icon img {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.provider-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.dropdown-arrow {
+  color: rgba(31, 41, 55, 0.6);
+  transition: transform 0.2s ease;
+}
+
+.provider-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-top: 8px;
+  overflow: hidden;
+  z-index: 20;
+}
+
+.provider-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.provider-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.provider-active {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.provider-item-icon img {
   width: 20px;
   height: 20px;
   border-radius: 4px;
+}
+
+.provider-item-emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.provider-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.checkmark {
+  color: #10b981;
+  font-weight: bold;
 }
 
 .search-input {
@@ -357,50 +523,6 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 
-.search-engines {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.engine-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-  color: #374151;
-  text-decoration: none;
-}
-
-.engine-button:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-1px);
-}
-
-.engine-active {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #3b82f6;
-}
-
-.engine-button-icon {
-  width: 16px;
-  height: 16px;
-  border-radius: 2px;
-}
-
-.engine-name {
-  font-weight: 500;
-}
-
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .search-input-wrapper {
@@ -416,6 +538,28 @@ onMounted(async () => {
     color: rgba(249, 250, 251, 0.6);
   }
 
+  .provider-button {
+    background: rgba(31, 41, 55, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .provider-button:hover {
+    background: rgba(31, 41, 55, 0.9);
+  }
+
+  .dropdown-arrow {
+    color: rgba(249, 250, 251, 0.6);
+  }
+
+  .provider-dropdown {
+    background: rgba(31, 41, 55, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .provider-item {
+    color: #d1d5db;
+  }
+
   .suggestions-dropdown {
     background: rgba(31, 41, 55, 0.95);
     border-color: rgba(255, 255, 255, 0.1);
@@ -423,16 +567,6 @@ onMounted(async () => {
 
   .suggestion-item {
     color: #d1d5db;
-  }
-
-  .engine-button {
-    background: rgba(31, 41, 55, 0.7);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #d1d5db;
-  }
-
-  .engine-button:hover {
-    background: rgba(31, 41, 55, 0.9);
   }
 }
 
@@ -446,13 +580,16 @@ onMounted(async () => {
     font-size: 1rem;
   }
 
-  .search-engines {
-    gap: 8px;
+  .provider-button {
+    padding: 6px 10px;
   }
 
-  .engine-button {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+  .provider-emoji {
+    font-size: 14px;
+  }
+
+  .provider-item-emoji {
+    font-size: 18px;
   }
 }
 </style>

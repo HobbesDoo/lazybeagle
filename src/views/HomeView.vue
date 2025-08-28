@@ -5,6 +5,9 @@ import ClockCard from '../components/ClockCard.vue'
 import WeatherCard from '../components/WeatherCard.vue'
 import SettingsPanel from '../components/SettingsPanel.vue'
 import WebLinkCard from '../components/WebLinkCard.vue'
+import UpcomingReleasesCard from '../components/UpcomingReleasesCard.vue'
+import SearchResultsPopup from '../components/SearchResultsPopup.vue'
+import AddMediaModal from '../components/AddMediaModal.vue'
 import BackgroundService from '../services/background.js'
 import configService from '../services/config.js'
 
@@ -13,6 +16,26 @@ const showSettingsPanel = ref(false)
 const currentBackground = ref('')
 const backgroundService = new BackgroundService(configService)
 const enabledServices = ref([])
+
+// Search popup state
+const showSearchPopup = ref(false)
+const searchPopupData = ref({
+  provider: null,
+  query: '',
+  results: [],
+  error: null,
+})
+const isSearchLoading = ref(false)
+
+// Add media modal state
+const showAddModal = ref(false)
+const addModalData = ref({
+  title: '',
+  year: null,
+  overview: '',
+  posterUrl: null,
+  providerType: 'sonarr',
+})
 
 // Settings from config service
 const settings = reactive({
@@ -97,6 +120,116 @@ onMounted(async () => {
   }
 })
 
+// Search popup handlers
+const handleOpenSearchPopup = (data) => {
+  searchPopupData.value = data
+  showSearchPopup.value = true
+  isSearchLoading.value = false
+}
+
+const handleCloseSearchPopup = () => {
+  showSearchPopup.value = false
+  searchPopupData.value = {
+    provider: null,
+    query: '',
+    results: [],
+    error: null,
+  }
+}
+
+const handleRetrySearch = async () => {
+  if (!searchPopupData.value.provider || !searchPopupData.value.query) return
+
+  isSearchLoading.value = true
+
+  try {
+    const provider = searchPopupData.value.provider
+    const query = searchPopupData.value.query
+
+    // Re-perform the API search
+    const serviceConfig = configService.getServiceByType(provider.api_type)
+    if (!serviceConfig?.url || !serviceConfig?.api_key) {
+      throw new Error(`${provider.api_type} service not configured`)
+    }
+
+    const baseUrl = serviceConfig.url.replace(/\/$/, '')
+    const apiKey = serviceConfig.api_key
+    const endpoint =
+      provider.api_type === 'sonarr' ? '/api/v3/series/lookup' : '/api/v3/movie/lookup'
+
+    const response = await fetch(`${baseUrl}${endpoint}?term=${encodeURIComponent(query)}`, {
+      headers: {
+        'X-Api-Key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      mode: 'cors',
+    })
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`)
+    }
+
+    const results = await response.json()
+
+    searchPopupData.value = {
+      ...searchPopupData.value,
+      results: results,
+      error: null,
+    }
+  } catch (error) {
+    console.error('Retry search failed:', error)
+    searchPopupData.value = {
+      ...searchPopupData.value,
+      results: [],
+      error: error.message,
+    }
+  } finally {
+    isSearchLoading.value = false
+  }
+}
+
+const handleAddMedia = (mediaData) => {
+  console.log('Add media requested:', mediaData)
+
+  // Extract poster URL from the media data
+  const posterUrl = (() => {
+    if (mediaData.images && mediaData.images.length > 0) {
+      const poster = mediaData.images.find((img) => img.coverType === 'poster')
+      return poster?.remoteUrl || null
+    }
+    return mediaData.remotePoster || null
+  })()
+
+  // Set up modal data
+  addModalData.value = {
+    ...mediaData,
+    posterUrl: posterUrl,
+    year:
+      mediaData.year ||
+      (mediaData.firstAired ? new Date(mediaData.firstAired).getFullYear() : null) ||
+      (mediaData.releaseDate ? new Date(mediaData.releaseDate).getFullYear() : null),
+  }
+
+  // Show the add modal
+  showAddModal.value = true
+}
+
+const handleCloseAddModal = () => {
+  showAddModal.value = false
+  addModalData.value = {
+    title: '',
+    year: null,
+    overview: '',
+    posterUrl: null,
+    providerType: 'sonarr',
+  }
+}
+
+const handleMediaAdded = (result) => {
+  console.log('Media added successfully:', result)
+  // Optionally refresh upcoming releases cards or show notification
+}
+
 // Cleanup
 onUnmounted(() => {
   backgroundService.stopRotation()
@@ -132,12 +265,30 @@ onUnmounted(() => {
 
       <!-- Search Card - Center -->
       <div class="search-section">
-        <SearchCard />
+        <SearchCard @openSearchPopup="handleOpenSearchPopup" />
       </div>
 
       <!-- Weather Card - Top Right -->
       <div class="weather-section">
         <WeatherCard :location="settings.weatherLocation" units="metric" :refresh-interval="10" />
+      </div>
+
+      <!-- Upcoming Releases - Right Side -->
+      <div class="releases-section">
+        <UpcomingReleasesCard
+          service-type="sonarr"
+          title="Upcoming TV"
+          :grid-width="2"
+          :grid-height="2"
+          :max-releases="4"
+        />
+        <UpcomingReleasesCard
+          service-type="radarr"
+          title="Upcoming Movies"
+          :grid-width="2"
+          :grid-height="2"
+          :max-releases="4"
+        />
       </div>
 
       <!-- Quick Links - Bottom -->
@@ -167,6 +318,24 @@ onUnmounted(() => {
       :is-open="showSettingsPanel"
       @close="closeSettingsPanel"
       @settings-changed="handleSettingsChange"
+    />
+
+    <!-- Search Results Popup -->
+    <SearchResultsPopup
+      :is-visible="showSearchPopup"
+      :search-data="searchPopupData"
+      :is-loading="isSearchLoading"
+      @close="handleCloseSearchPopup"
+      @retry="handleRetrySearch"
+      @addMedia="handleAddMedia"
+    />
+
+    <!-- Add Media Modal -->
+    <AddMediaModal
+      :is-visible="showAddModal"
+      :media-data="addModalData"
+      @close="handleCloseAddModal"
+      @added="handleMediaAdded"
     />
   </div>
 </template>
@@ -225,13 +394,13 @@ onUnmounted(() => {
   display: grid;
   grid-template-areas:
     '. clock weather'
-    '. search .'
+    '. search releases'
     'links links links';
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 2fr 2fr;
   grid-template-rows: auto 1fr auto;
   gap: 24px;
   padding: 80px 48px 48px;
-  align-items: center;
+  align-items: start;
 }
 
 .clock-section {
@@ -253,6 +422,14 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+.releases-section {
+  grid-area: releases;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
 .links-section {
   grid-area: links;
   display: flex;
@@ -261,6 +438,9 @@ onUnmounted(() => {
   flex-wrap: wrap;
   margin-top: auto;
   padding-bottom: 24px;
+  max-width: 100%;
+  align-items: flex-start;
+  align-content: flex-start;
 }
 
 /* Responsive Design */
@@ -268,7 +448,7 @@ onUnmounted(() => {
   .content-grid {
     grid-template-areas:
       'clock weather'
-      'search search'
+      'search releases'
       'links links';
     grid-template-columns: 1fr 1fr;
     padding: 80px 32px 32px;
@@ -281,9 +461,10 @@ onUnmounted(() => {
       'clock'
       'weather'
       'search'
+      'releases'
       'links';
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr auto;
+    grid-template-rows: auto auto auto auto auto;
     padding: 80px 24px 24px;
     gap: 16px;
   }

@@ -370,6 +370,27 @@ export class ConfigService {
   }
 
   /**
+   * Get service configuration by type (e.g., 'sonarr', 'radarr')
+   */
+  getServiceByType(serviceType) {
+    const services = this.config.services || []
+    return services.find((service) => {
+      // Check if the service name/type matches (case-insensitive)
+      const serviceName = service.name?.toLowerCase()
+      const serviceTypeMatch = serviceName === serviceType.toLowerCase()
+
+      // Also check for common variations
+      const variations = {
+        sonarr: ['tv shows', 'sonarr'],
+        radarr: ['movies', 'radarr'],
+      }
+
+      const validNames = variations[serviceType.toLowerCase()] || [serviceType.toLowerCase()]
+      return validNames.includes(serviceName)
+    })
+  }
+
+  /**
    * Enable/disable a service
    */
   toggleService(serviceName, enabled) {
