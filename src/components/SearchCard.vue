@@ -17,10 +17,7 @@
           @click="toggleProviderDropdown"
           :title="`Search with ${currentSearchEngine.name}`"
         >
-          <span v-if="currentSearchEngine.icon.startsWith('http')" class="provider-icon">
-            <img :src="currentSearchEngine.icon" :alt="currentSearchEngine.name" />
-          </span>
-          <span v-else class="provider-emoji">{{ currentSearchEngine.icon }}</span>
+          <IconRenderer :icon="currentSearchEngine.icon" :size="16" />
           <svg
             class="dropdown-arrow"
             width="12"
@@ -74,10 +71,7 @@
             'provider-active': currentSearchEngine && currentSearchEngine.id === engine.id,
           }"
         >
-          <span v-if="engine.icon.startsWith('http')" class="provider-item-icon">
-            <img :src="engine.icon" :alt="engine.name" />
-          </span>
-          <span v-else class="provider-item-emoji">{{ engine.icon }}</span>
+          <IconRenderer :icon="engine.icon" :size="20" />
           <span class="provider-name">{{ engine.name }}</span>
           <span v-if="currentSearchEngine && currentSearchEngine.id === engine.id" class="checkmark"
             >✓</span
@@ -115,6 +109,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import configService from '../services/config.js'
+import IconRenderer from './IconRenderer.vue'
 
 // Search engines configuration - loaded from config
 const searchEngines = ref([])

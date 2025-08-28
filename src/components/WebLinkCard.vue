@@ -10,7 +10,7 @@
     <!-- App Icon -->
     <div class="app-icon">
       <img v-if="iconUrl" :src="iconUrl" :alt="`${serviceName} icon`" class="icon-image" />
-      <span v-else class="icon-emoji">{{ icon }}</span>
+      <IconRenderer v-else :icon="icon" :size="32" />
     </div>
 
     <!-- App Name -->
@@ -20,6 +20,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import IconRenderer from './IconRenderer.vue'
 
 const props = defineProps({
   /**
