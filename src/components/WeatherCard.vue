@@ -78,7 +78,7 @@ const props = defineProps({
    */
   location: {
     type: String,
-    default: 'New York',
+    default: 'Surrey, CA',
   },
 
   /**
@@ -86,7 +86,7 @@ const props = defineProps({
    */
   apiKey: {
     type: String,
-    default: '', // You'll need to provide your own API key
+    default: 'fc315fbd1c64cd2f058a9d33789a1993', // You'll need to provide your own API key
   },
 
   /**

@@ -210,13 +210,14 @@ const fetchReleases = async () => {
       throw new Error(`${props.serviceType} service not configured`)
     }
 
-    const apiKey = serviceConfig.api_key
+    const baseUrl = serviceConfig.url.replace(/\/$/, '')
+    const endpoint = props.serviceType === 'sonarr' ? '/api/v3/calendar' : '/api/v3/calendar'
+
+    // Get API key
+    const apiKey = configService.getApiKey(props.serviceType, 'api_key')
     if (!apiKey) {
       throw new Error(`API key not configured for ${props.serviceType}`)
     }
-
-    const baseUrl = serviceConfig.url.replace(/\/$/, '')
-    const endpoint = props.serviceType === 'sonarr' ? '/api/v3/calendar' : '/api/v3/calendar'
 
     // Get releases for the next 30 days
     const startDate = new Date().toISOString().split('T')[0]

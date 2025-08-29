@@ -383,6 +383,7 @@ export class ConfigService {
       const variations = {
         sonarr: ['tv shows', 'sonarr'],
         radarr: ['movies', 'radarr'],
+        readarr: ['books', 'readarr'],
       }
 
       const validNames = variations[serviceType.toLowerCase()] || [serviceType.toLowerCase()]

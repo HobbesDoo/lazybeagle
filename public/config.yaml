@@ -8,7 +8,12 @@ api_keys:
     secret_key: 'CmrJ-0YwWwGQ2g-dCaT1plqkxyVC5TVzGvT489fUs0E' # Your Unsplash Secret Key (optional, for write operations)
   openweather:
     api_key: 'fc315fbd1c64cd2f058a9d33789a1993' # Your OpenWeatherMap API Key
-  # Add more API keys as needed for other services
+  sonarr:
+    api_key: '1098ec9f76e0439c9ddad8652ed87c8e'
+  radarr:
+    api_key: 'b2c75a609dfe49f5a48f73c7606caa78'
+  readarr:
+    api_key: '7de8371b967942628595219d8affb4c3'
 
 # Dashboard Settings
 dashboard:
@@ -27,7 +32,7 @@ dashboard:
 
   # Weather settings
   weather:
-    location: 'Surrey, Canada' # Default weather location
+    location: 'Surrey, CA' # Default weather location
     units: 'metric' # Units: "metric" (Celsius), "imperial" (Fahrenheit), "kelvin"
     refresh_interval: 10 # Minutes between weather updates
 
@@ -118,7 +123,6 @@ services:
     description: 'TV Shows'
     icon: 'lucide:tv'
     category: 'download'
-    api_key: '1098ec9f76e0439c9ddad8652ed87c8e' # Add your Sonarr API key
     enabled: true
     grid_width: 1
     grid_height: 1
@@ -129,7 +133,6 @@ services:
     description: 'Movies'
     icon: 'lucide:film'
     category: 'download'
-    api_key: 'b2c75a609dfe49f5a48f73c7606caa78' # Add your Radarr API key
     enabled: true
     grid_width: 1
     grid_height: 1
@@ -140,7 +143,6 @@ services:
     description: 'Books'
     icon: 'lucide:book-open'
     category: 'download'
-    api_key: ''
     enabled: true
     grid_width: 1
     grid_height: 1
@@ -152,7 +154,6 @@ services:
     description: 'DNS Filter'
     icon: 'lucide:shield'
     category: 'network'
-    api_key: ''
     enabled: true
     grid_width: 1
     grid_height: 1
@@ -207,6 +208,15 @@ search_engines:
     placeholder: 'Search for Movies'
     display_type: 'popup'
     api_type: 'radarr'
+    default: false
+
+  - id: 'readarr'
+    name: 'Books'
+    url: 'lookup' # Special indicator for API-based search
+    icon: 'lucide:book-open'
+    placeholder: 'Search for Books'
+    display_type: 'popup'
+    api_type: 'readarr'
     default: false
 
   - id: 'google'

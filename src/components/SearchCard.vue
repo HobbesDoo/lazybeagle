@@ -260,17 +260,24 @@ const performSearch = async () => {
   searchQuery.value = ''
 }
 
+const getApiEndpoint = (apiType) => {
+  console.log('apiType', apiType)
+  if (apiType === 'sonarr') return '/api/v3/series/lookup'
+  if (apiType === 'radarr') return '/api/v3/movie/lookup'
+  if (apiType === 'readarr') return '/api/v1/book/lookup'
+  return ''
+}
+
 // Perform API search for Sonarr/Radarr
 const performApiSearch = async (apiType, query) => {
   const serviceConfig = configService.getServiceByType(apiType)
-  if (!serviceConfig?.url || !serviceConfig?.api_key) {
+  const apiKey = configService.getApiKey(apiType, 'api_key')
+  if (!serviceConfig?.url || !apiKey) {
     throw new Error(`${apiType} service not configured`)
   }
 
   const baseUrl = serviceConfig.url.replace(/\/$/, '')
-  const apiKey = serviceConfig.api_key
-  const endpoint = apiType === 'sonarr' ? '/api/v3/series/lookup' : '/api/v3/movie/lookup'
-
+  const endpoint = getApiEndpoint(apiType)
   const response = await fetch(`${baseUrl}${endpoint}?term=${encodeURIComponent(query)}`, {
     headers: {
       'X-Api-Key': apiKey,
