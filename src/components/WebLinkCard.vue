@@ -6,21 +6,59 @@
 -->
 
 <template>
-  <div class="web-link-card" @click="handleClick">
-    <!-- App Icon -->
-    <div class="app-icon">
-      <img v-if="iconUrl" :src="iconUrl" :alt="`${serviceName} icon`" class="icon-image" />
-      <IconRenderer v-else :icon="icon" :size="32" />
+  <BaseCard
+    :grid-width="gridWidth"
+    :grid-height="gridHeight"
+    :grid-column-start="gridColumnStart"
+    :grid-row-start="gridRowStart"
+    :variant="variant"
+    :clickable="true"
+    :bordered="false"
+    :shadow="false"
+    @click="handleClick"
+    :style="{
+      '--card-background': 'transparent',
+      '--card-border-color': 'transparent',
+      '--card-shadow': 'none',
+    }"
+  >
+    <!-- Container mode: render multiple links if provided -->
+    <div v-if="links && links.length" class="links-grid" @click.stop>
+      <button
+        v-for="(item, idx) in normalizedLinks"
+        :key="idx"
+        class="link-item"
+        @click="openLink(item.url)"
+        :title="item.description || item.name"
+      >
+        <div class="app-icon">
+          <img
+            v-if="item.iconUrl"
+            :src="item.iconUrl"
+            :alt="`${item.name} icon`"
+            class="icon-image"
+          />
+          <IconRenderer v-else :icon="item.icon || '🔗'" :size="28" />
+        </div>
+        <div class="app-name">{{ item.name }}</div>
+      </button>
     </div>
 
-    <!-- App Name -->
-    <div class="app-name">{{ serviceName }}</div>
-  </div>
+    <!-- Fallback: single-link tile (backwards compatible) -->
+    <div v-else class="web-link-card">
+      <div class="app-icon">
+        <img v-if="iconUrl" :src="iconUrl" :alt="`${serviceName} icon`" class="icon-image" />
+        <IconRenderer v-else :icon="icon || '🔗'" :size="32" />
+      </div>
+      <div class="app-name">{{ serviceName }}</div>
+    </div>
+  </BaseCard>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import IconRenderer from './IconRenderer.vue'
+import BaseCard from './BaseCard.vue'
 
 const props = defineProps({
   /**
@@ -29,6 +67,15 @@ const props = defineProps({
   serviceName: {
     type: String,
     required: true,
+  },
+
+  /**
+   * Optional list of links to render inside the card
+   * Each item: { name, url, description?, icon?, iconUrl? }
+   */
+  links: {
+    type: Array,
+    default: () => [],
   },
 
   /**
@@ -88,6 +135,18 @@ const props = defineProps({
   },
 
   /**
+   * Optional explicit starting column and row
+   */
+  gridColumnStart: {
+    type: Number,
+    default: null,
+  },
+  gridRowStart: {
+    type: Number,
+    default: null,
+  },
+
+  /**
    * Card variant (inherited from BaseCard)
    */
   variant: {
@@ -123,41 +182,7 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 
-/**
- * Computed title for the card (uses serviceName if no explicit title)
- */
-const title = computed(() => props.serviceName)
-
-/**
- * Computed display URL (shortened for UI)
- */
-const displayUrl = computed(() => {
-  try {
-    const url = new URL(props.url)
-    return url.hostname
-  } catch {
-    return props.url
-  }
-})
-
-/**
- * Computed status CSS class
- */
-const statusClass = computed(() => {
-  return `status-${props.status}`
-})
-
-/**
- * Computed status text for tooltip
- */
-const statusText = computed(() => {
-  const statusMap = {
-    online: 'Service is online',
-    offline: 'Service is offline',
-    unknown: 'Service status unknown',
-  }
-  return statusMap[props.status] || 'Unknown status'
-})
+// Legacy computed values removed (not used in container mode)
 
 /**
  * Handle card click - navigate to URL
@@ -174,9 +199,65 @@ const handleClick = () => {
     url: props.url,
   })
 }
+
+/**
+ * Normalized links when container mode is used
+ */
+const normalizedLinks = computed(() => {
+  return (props.links || [])
+    .filter((l) => l && l.url && l.name)
+    .map((l) => ({
+      name: l.name,
+      url: l.url,
+      description: l.description || '',
+      icon: l.icon || '',
+      iconUrl: l.iconUrl || l.icon_url || '',
+    }))
+})
+
+const openLink = (url) => {
+  if (!url) return
+  if (props.openInNewTab) {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  } else {
+    window.location.href = url
+  }
+}
 </script>
 
 <style scoped>
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
+  padding: 8px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* hide overflow for now */
+  align-content: flex-start;
+}
+
+.link-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 12px;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+  color: inherit;
+}
+
+.link-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .web-link-card {
   display: flex;
   flex-direction: column;

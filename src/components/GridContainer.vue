@@ -49,6 +49,14 @@ const props = defineProps({
     type: Number,
     default: 24,
   },
+
+  /**
+   * Optional CSS background for the grid container
+   */
+  background: {
+    type: String,
+    default: '',
+  },
 })
 
 /**
@@ -64,6 +72,7 @@ const gridStyle = computed(() => {
     gridTemplateRows: `repeat(${props.rows}, 1fr)`,
     gap: `${props.gap}px`,
     padding: `${props.padding}px`,
+    background: props.background || undefined,
   }
 })
 </script>

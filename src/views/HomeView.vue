@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import SearchCard from '../components/SearchCard.vue'
 import ClockCard from '../components/ClockCard.vue'
 import WeatherCard from '../components/WeatherCard.vue'
@@ -10,6 +10,8 @@ import SearchResultsPopup from '../components/SearchResultsPopup.vue'
 import AddMediaModal from '../components/AddMediaModal.vue'
 import BackgroundService from '../services/background.js'
 import configService from '../services/config.js'
+import IconRenderer from '../components/IconRenderer.vue'
+import GridContainer from '../components/GridContainer.vue'
 
 // Reactive state
 const showSettingsPanel = ref(false)
@@ -46,6 +48,15 @@ const settings = reactive({
   gridRows: 4,
 })
 
+// Layout mapping for card positions/sizes from config
+const layout = computed(() => configService.config.dashboard?.layout?.cards || {})
+
+// Background style for GridContainer
+const gridBackground = computed(() => {
+  if (!currentBackground.value) return null
+  return `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${currentBackground.value}) center/cover no-repeat fixed`
+})
+
 // Load settings from config service
 const loadSettings = async () => {
   await configService.loadConfig()
@@ -60,7 +71,7 @@ const loadSettings = async () => {
   // Load enabled services
   enabledServices.value = configService.getEnabledServices()
   console.log('Loaded enabled services:', enabledServices.value)
-  console.log('All services from config:', configService.config.services)
+  console.log('All links from config:', configService.config.links)
   console.log('Config loaded?', configService.isLoaded.value)
 }
 
@@ -237,81 +248,80 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="dashboard" :style="{ backgroundImage: `url(${currentBackground})` }">
+  <div class="dashboard">
     <!-- Settings Icon -->
-    <button class="settings-icon" @click="toggleSettingsPanel" aria-label="Open settings">
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M12 1v6m0 6v6"></path>
-        <path d="m21 12-6 0m-6 0-6 0"></path>
-        <path d="m16.24 7.76-4.24 4.24m-4.24 4.24-4.24-4.24"></path>
-        <path d="M16.24 16.24 12 12m-4.24-4.24L3.52 3.52"></path>
-      </svg>
+    <button
+      class="settings-icon"
+      @click="toggleSettingsPanel"
+      aria-label="Open settings"
+      style="color: #fff"
+    >
+      <IconRenderer icon="lucide:menu" :size="28" :stroke-width="2.5" />
     </button>
 
-    <!-- Main Content Grid -->
-    <div class="content-grid">
-      <!-- Clock Card - Top Center -->
-      <div class="clock-section">
-        <ClockCard :time-format="settings.timeFormat" />
-      </div>
+    <GridContainer
+      :columns="settings.gridColumns"
+      :rows="settings.gridRows"
+      :gap="settings.gridGap"
+      :padding="settings.gridPadding"
+      :background="gridBackground || undefined"
+    >
+      <ClockCard
+        :time-format="settings.timeFormat"
+        :grid-width="layout.clock?.width || 2"
+        :grid-height="layout.clock?.height || 2"
+        :grid-column-start="layout.clock?.col || null"
+        :grid-row-start="layout.clock?.row || null"
+      />
 
-      <!-- Search Card - Center -->
-      <div class="search-section">
-        <SearchCard @openSearchPopup="handleOpenSearchPopup" />
-      </div>
+      <SearchCard
+        :grid-width="layout.search?.width || 3"
+        :grid-height="layout.search?.height || 1"
+        :grid-column-start="layout.search?.col || null"
+        :grid-row-start="layout.search?.row || null"
+        @openSearchPopup="handleOpenSearchPopup"
+      />
 
-      <!-- Weather Card - Top Right -->
-      <div class="weather-section">
-        <WeatherCard :location="settings.weatherLocation" units="metric" :refresh-interval="10" />
-      </div>
+      <WeatherCard
+        :location="settings.weatherLocation"
+        units="metric"
+        :refresh-interval="10"
+        :grid-width="layout.weather?.width || 2"
+        :grid-height="layout.weather?.height || 2"
+        :grid-column-start="layout.weather?.col || null"
+        :grid-row-start="layout.weather?.row || null"
+      />
 
-      <!-- Upcoming Releases - Right Side -->
-      <div class="releases-section">
-        <UpcomingReleasesCard
-          service-type="sonarr"
-          title="Upcoming TV"
-          :grid-width="2"
-          :grid-height="2"
-          :max-releases="4"
-        />
-        <UpcomingReleasesCard
-          service-type="radarr"
-          title="Upcoming Movies"
-          :grid-width="2"
-          :grid-height="2"
-          :max-releases="4"
-        />
-      </div>
-
-      <!-- Quick Links - Bottom -->
-      <div class="links-section">
-        <div
-          v-if="enabledServices.length === 0"
-          style="color: white; text-align: center; padding: 20px"
-        >
-          No enabled services found. Services count: {{ enabledServices.length }}
-        </div>
-        <WebLinkCard
-          v-for="service in enabledServices"
-          :key="service.name"
-          :service-name="service.name"
-          :url="service.url"
-          :description="service.description"
-          :icon="service.icon"
-          :grid-width="service.grid_width || 1"
-          :grid-height="service.grid_height || 1"
-          variant="default"
-        />
-      </div>
-    </div>
+      <UpcomingReleasesCard
+        service-type="sonarr"
+        title="Upcoming TV"
+        :grid-width="layout.upcoming_tv?.width || 2"
+        :grid-height="layout.upcoming_tv?.height || 2"
+        :grid-column-start="layout.upcoming_tv?.col || null"
+        :grid-row-start="layout.upcoming_tv?.row || null"
+      />
+      <UpcomingReleasesCard
+        service-type="radarr"
+        title="Upcoming Movies"
+        :grid-width="layout.upcoming_movies?.width || 2"
+        :grid-height="layout.upcoming_movies?.height || 2"
+        :grid-column-start="layout.upcoming_movies?.col || null"
+        :grid-row-start="layout.upcoming_movies?.row || null"
+      />
+      <WebLinkCard
+        :grid-width="layout.links?.width || 4"
+        :grid-height="layout.links?.height || 4"
+        :links="
+          enabledServices.map((s) => ({
+            name: s.name,
+            url: s.url,
+            description: s.description,
+            icon: s.icon,
+            iconUrl: s.icon_url,
+          }))
+        "
+      />
+    </GridContainer>
 
     <!-- Settings Panel -->
     <SettingsPanel

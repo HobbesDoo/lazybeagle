@@ -6,73 +6,116 @@
 -->
 
 <template>
-  <div class="weather-card">
-    <!-- Loading State -->
-    <div v-if="loading" class="weather-loading">
-      <div class="loading-spinner"></div>
-      <span class="loading-text">Loading weather...</span>
+  <BaseCard
+    :grid-width="gridWidth"
+    :grid-height="gridHeight"
+    :grid-column-start="gridColumnStart"
+    :grid-row-start="gridRowStart"
+    :bordered="false"
+    :shadow="false"
+    :style="{
+      '--card-background': 'transparent',
+      '--card-border-color': 'transparent',
+      '--card-shadow': 'none',
+    }"
+  >
+    <div class="weather-card">
+      <!-- Loading State -->
+      <div v-if="loading" class="weather-loading">
+        <div class="loading-spinner"></div>
+        <span class="loading-text">Loading weather...</span>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="weather-error">
+        <svg
+          class="error-icon"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span class="error-text">Weather unavailable</span>
+        <button class="retry-button" @click="fetchWeather">Retry</button>
+      </div>
+
+      <!-- Weather Data -->
+      <div v-else-if="weatherData" class="weather-content">
+        <!-- Location Header -->
+        <div class="location-header">
+          <span class="location-name">{{ weatherData.name }}</span>
+        </div>
+
+        <!-- Main Temperature Display -->
+        <div class="main-temperature">
+          <span class="temperature-large">{{ Math.round(weatherData.main.temp) }}°</span>
+        </div>
+
+        <!-- Weather Icon and Description -->
+        <div class="weather-status">
+          <img
+            :src="`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`"
+            :alt="weatherData.weather[0].description"
+            class="weather-icon-main"
+          />
+          <span class="weather-condition">
+            {{
+              weatherData.weather[0].description.charAt(0).toUpperCase() +
+              weatherData.weather[0].description.slice(1)
+            }}
+          </span>
+        </div>
+
+        <!-- High/Low Temperature -->
+        <div class="temp-range">
+          <span class="temp-high">H:{{ Math.round(weatherData.main.temp_max) }}°</span>
+          <span class="temp-low">L:{{ Math.round(weatherData.main.temp_min) }}°</span>
+        </div>
+      </div>
     </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="weather-error">
-      <svg
-        class="error-icon"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <span class="error-text">Weather unavailable</span>
-      <button class="retry-button" @click="fetchWeather">Retry</button>
-    </div>
-
-    <!-- Weather Data -->
-    <div v-else-if="weatherData" class="weather-content">
-      <!-- Location Header -->
-      <div class="location-header">
-        <span class="location-name">{{ weatherData.name }}</span>
-      </div>
-
-      <!-- Main Temperature Display -->
-      <div class="main-temperature">
-        <span class="temperature-large">{{ Math.round(weatherData.main.temp) }}°</span>
-      </div>
-
-      <!-- Weather Icon and Description -->
-      <div class="weather-status">
-        <img
-          :src="`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`"
-          :alt="weatherData.weather[0].description"
-          class="weather-icon-main"
-        />
-        <span class="weather-condition">
-          {{
-            weatherData.weather[0].description.charAt(0).toUpperCase() +
-            weatherData.weather[0].description.slice(1)
-          }}
-        </span>
-      </div>
-
-      <!-- High/Low Temperature -->
-      <div class="temp-range">
-        <span class="temp-high">H:{{ Math.round(weatherData.main.temp_max) }}°</span>
-        <span class="temp-low">L:{{ Math.round(weatherData.main.temp_min) }}°</span>
-      </div>
-    </div>
-  </div>
+  </BaseCard>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import configService from '../services/config.js'
+import BaseCard from './BaseCard.vue'
 
 const props = defineProps({
+  /**
+   * Grid width in cells
+   */
+  gridWidth: {
+    type: Number,
+    default: 2,
+  },
+
+  /**
+   * Grid height in cells
+   */
+  gridHeight: {
+    type: Number,
+    default: 2,
+  },
+
+  /**
+   * Optional explicit starting column and row
+   */
+  gridColumnStart: {
+    type: Number,
+    default: null,
+  },
+  gridRowStart: {
+    type: Number,
+    default: null,
+  },
+
   /**
    * City name for weather lookup
    */
@@ -342,7 +385,7 @@ defineExpose({ cleanup })
 }
 
 .main-temperature {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .temperature-large {
@@ -359,7 +402,7 @@ defineExpose({ cleanup })
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .weather-icon-main {
@@ -385,7 +428,7 @@ defineExpose({ cleanup })
 
 .temp-high,
 .temp-low {
-  font-size: 0.875rem;
+  font-size: 0.675rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -434,7 +477,7 @@ defineExpose({ cleanup })
 
   .temp-high,
   .temp-low {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
   }
 }
 

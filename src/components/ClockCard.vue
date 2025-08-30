@@ -6,40 +6,83 @@
 -->
 
 <template>
-  <div class="clock-card">
-    <!-- Main Time Display -->
-    <div class="time-display">
-      <span class="time">{{ formattedTime }}</span>
-      <span v-if="timeFormat === '12'" class="period">{{ period }}</span>
-    </div>
+  <BaseCard
+    :grid-width="gridWidth"
+    :grid-height="gridHeight"
+    :grid-column-start="gridColumnStart"
+    :grid-row-start="gridRowStart"
+    :bordered="false"
+    :shadow="false"
+    :style="{
+      '--card-background': 'transparent',
+      '--card-border-color': 'transparent',
+      '--card-shadow': 'none',
+    }"
+  >
+    <div class="clock-card">
+      <!-- Main Time Display -->
+      <div class="time-display">
+        <span class="time">{{ formattedTime }}</span>
+        <span v-if="timeFormat === '12'" class="period">{{ period }}</span>
+      </div>
 
-    <!-- Date Display -->
-    <div class="date-display">
-      <span class="date">{{ formattedDate }}</span>
-    </div>
+      <!-- Date Display -->
+      <div class="date-display">
+        <span class="date">{{ formattedDate }}</span>
+      </div>
 
-    <!-- Optional Temperature Display -->
-    <div v-if="temperature" class="temperature-display">
-      <svg
-        class="temperature-icon"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
-      </svg>
-      <span class="temperature">{{ temperature }}°</span>
+      <!-- Optional Temperature Display -->
+      <div v-if="temperature" class="temperature-display">
+        <svg
+          class="temperature-icon"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+        </svg>
+        <span class="temperature">{{ temperature }}°</span>
+      </div>
     </div>
-  </div>
+  </BaseCard>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import BaseCard from './BaseCard.vue'
 
 const props = defineProps({
+  /**
+   * Grid width in cells
+   */
+  gridWidth: {
+    type: Number,
+    default: 2,
+  },
+
+  /**
+   * Grid height in cells
+   */
+  gridHeight: {
+    type: Number,
+    default: 2,
+  },
+
+  /**
+   * Optional explicit starting column and row
+   */
+  gridColumnStart: {
+    type: Number,
+    default: null,
+  },
+  gridRowStart: {
+    type: Number,
+    default: null,
+  },
+
   /**
    * Time format: '12' for 12-hour, '24' for 24-hour
    */

@@ -94,6 +94,7 @@ const DEFAULT_CONFIG = {
     },
   },
   services: [],
+  links: [],
   search_engines: [
     {
       id: 'google',
@@ -158,6 +159,7 @@ export class ConfigService {
       const mergedConfig = this.mergeWithDefaults(yamlConfig)
       console.log('Merged YAML config:', mergedConfig)
       console.log('Services in YAML config:', mergedConfig.services)
+      console.log('Links in YAML config:', mergedConfig.links)
 
       // Apply the YAML config first
       Object.assign(this.config, mergedConfig)
@@ -167,14 +169,14 @@ export class ConfigService {
         const localConfig = this.loadFromLocalStorage()
         if (localConfig) {
           console.log('Applying localStorage overrides for API keys and settings...')
-          // Only override specific user settings, not the entire services array
+          // Only override specific user settings, not the entire services/links arrays
           if (localConfig.api_keys) {
             Object.assign(this.config.api_keys, localConfig.api_keys)
           }
           if (localConfig.dashboard) {
             Object.assign(this.config.dashboard, localConfig.dashboard)
           }
-          // DON'T override services - keep them from YAML
+          // DON'T override services/links - keep them from YAML
         }
       }
 
@@ -358,14 +360,18 @@ export class ConfigService {
    * Get enabled services
    */
   getEnabledServices() {
-    console.log('getEnabledServices called, all services:', this.config.services)
+    const allLinks =
+      Array.isArray(this.config.links) && this.config.links.length
+        ? this.config.links
+        : this.config.services || []
+    console.log('getEnabledServices called, all links:', allLinks)
     console.log(
-      'Services details:',
-      this.config.services.map((s) => ({ name: s.name, enabled: s.enabled })),
+      'Links details:',
+      allLinks.map((s) => ({ name: s.name, enabled: s.enabled })),
     )
-    const enabled = this.config.services.filter((service) => service.enabled)
-    console.log('Filtered enabled services:', enabled)
-    console.log('Enabled services count:', enabled.length)
+    const enabled = allLinks.filter((service) => service.enabled)
+    console.log('Filtered enabled links:', enabled)
+    console.log('Enabled links count:', enabled.length)
     return enabled
   }
 
@@ -373,11 +379,12 @@ export class ConfigService {
    * Get service configuration by type (e.g., 'sonarr', 'radarr')
    */
   getServiceByType(serviceType) {
-    const services = this.config.services || []
+    const services =
+      (this.config.links && this.config.links.length ? this.config.links : this.config.services) ||
+      []
     return services.find((service) => {
       // Check if the service name/type matches (case-insensitive)
       const serviceName = service.name?.toLowerCase()
-      const serviceTypeMatch = serviceName === serviceType.toLowerCase()
 
       // Also check for common variations
       const variations = {
@@ -395,7 +402,10 @@ export class ConfigService {
    * Enable/disable a service
    */
   toggleService(serviceName, enabled) {
-    const service = this.config.services.find((s) => s.name === serviceName)
+    const arr =
+      (this.config.links && this.config.links.length ? this.config.links : this.config.services) ||
+      []
+    const service = arr.find((s) => s.name === serviceName)
     if (service) {
       service.enabled = enabled
     }

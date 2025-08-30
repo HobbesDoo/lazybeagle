@@ -10,6 +10,8 @@
     :title="title"
     :grid-width="gridWidth"
     :grid-height="gridHeight"
+    :grid-column-start="gridColumnStart"
+    :grid-row-start="gridRowStart"
     variant="default"
     :loading="loading"
   >
@@ -22,7 +24,12 @@
         No upcoming releases found
       </div>
 
-      <div v-else class="releases-grid">
+      <div
+        v-else
+        class="releases-grid"
+        ref="releasesGridRef"
+        :style="{ '--poster-item-width': posterItemWidth + 'px' }"
+      >
         <div
           v-for="release in displayReleases"
           :key="release.id"
@@ -50,11 +57,11 @@
 
           <!-- Release Info -->
           <div v-if="!release.isPlaceholder" class="release-info">
-            <div class="release-title">{{ release.title }}</div>
+            <!--div class="release-title">{{ release.title }}</div -->
             <div class="release-date">{{ formatDate(release.airDate) }}</div>
           </div>
           <div v-else class="release-info placeholder-info">
-            <div class="release-title">&nbsp;</div>
+            <!-- div class="release-title">&nbsp;</div -->
             <div class="release-date">&nbsp;</div>
           </div>
         </div>
@@ -103,6 +110,18 @@ const props = defineProps({
   },
 
   /**
+   * Optional explicit starting column and row
+   */
+  gridColumnStart: {
+    type: Number,
+    default: null,
+  },
+  gridRowStart: {
+    type: Number,
+    default: null,
+  },
+
+  /**
    * Maximum number of releases to show
    */
   maxReleases: {
@@ -123,6 +142,23 @@ const props = defineProps({
 const releases = ref([])
 const loading = ref(false)
 const error = ref(null)
+
+// Sizing: poster width scales with container height to preserve 2:3 aspect ratio
+const releasesGridRef = ref(null)
+const posterItemWidth = ref(120)
+let resizeObserver = null
+
+const recomputePosterWidth = () => {
+  const el = releasesGridRef.value
+  if (!el) return
+  const height = el.clientHeight || 0
+  // Reserve space for title/date text below poster and padding
+  const reserved = 56 // px
+  const candidate = (2 / 3) * Math.max(0, height - reserved)
+  // Clamp to sensible bounds
+  const clamped = Math.max(90, Math.min(220, Math.floor(candidate)))
+  posterItemWidth.value = clamped
+}
 
 // Computed properties
 const displayReleases = computed(() => {
@@ -145,7 +181,7 @@ const displayReleases = computed(() => {
 
 // Get service configuration
 const getServiceConfig = () => {
-  const services = configService.config.services || []
+  const services = configService.config.links || configService.config.services || []
   const serviceName = props.serviceType === 'sonarr' ? 'TV Shows' : 'Movies'
   return services.find(
     (service) => service.name === serviceName || service.url.includes(props.serviceType),
@@ -173,7 +209,13 @@ const formatDate = (dateString) => {
   if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Tomorrow'
   if (diffDays === -1) return 'Yesterday'
-  if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days`
+  //if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days`
+  if (diffDays > 1 && diffDays <= 7) {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    })
+  }
   if (diffDays < -1 && diffDays >= -7) return `${Math.abs(diffDays)} days ago`
 
   // Format as "Month Day"
@@ -392,6 +434,11 @@ onMounted(async () => {
   await configService.loadConfig()
   await fetchReleases()
   setupRefreshTimer()
+  // Observe size to recompute poster width on container changes
+  resizeObserver = new ResizeObserver(() => recomputePosterWidth())
+  if (releasesGridRef.value) resizeObserver.observe(releasesGridRef.value)
+  // Initial compute (next tick to ensure DOM painted)
+  setTimeout(recomputePosterWidth, 0)
 })
 
 // Watch for refresh interval changes
@@ -401,6 +448,14 @@ watch(() => props.refreshInterval, setupRefreshTimer)
 onUnmounted(() => {
   if (refreshTimer) {
     clearInterval(refreshTimer)
+  }
+  if (resizeObserver && releasesGridRef.value) {
+    try {
+      resizeObserver.unobserve(releasesGridRef.value)
+    } catch {
+      // ignore
+    }
+    resizeObserver = null
   }
 })
 </script>
@@ -427,15 +482,16 @@ onUnmounted(() => {
 }
 
 .releases-grid {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--poster-item-width, 120px);
   gap: 12px;
   padding: 8px;
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: start;
+  align-items: start;
   min-height: 200px; /* Ensure consistent height */
 }
 
@@ -444,8 +500,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
-  width: 120px;
+  width: var(--poster-item-width, 120px);
 }
 
 .poster-container {

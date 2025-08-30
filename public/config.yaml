@@ -27,7 +27,7 @@ dashboard:
 
   # Time and locale settings
   time:
-    format: '12' # Time format: "12" or "24"
+    format: '24' # Time format: "12" or "24"
     timezone: 'auto' # Timezone: "auto" or specific timezone like "America/New_York"
 
   # Weather settings
@@ -38,10 +38,33 @@ dashboard:
 
   # Grid layout settings
   grid:
-    columns: 6 # Number of grid columns
-    rows: 4 # Number of grid rows
+    columns: 12 # Number of grid columns
+    rows: 12 # Number of grid rows
     gap: 16 # Gap between grid items (pixels)
     padding: 24 # Padding around grid container (pixels)
+
+  # Card layout (sizes/positions for the dashboard grid)
+  layout:
+    cards:
+      clock:
+        col: 2
+        row: 1
+        width: 2
+        height: 2
+      search:
+        col: 2
+        row: 2
+        width: 3
+        height: 1
+      weather:
+        width: 1
+        height: 1
+      upcoming_tv:
+        width: 2
+        height: 1
+      upcoming_movies:
+        width: 2
+        height: 1
 
 # Card Layout Configuration
 # This defines which cards appear where on your dashboard
@@ -77,16 +100,16 @@ layout:
     cards:
       - service_type: 'sonarr'
         title: 'Upcoming TV'
-        grid_width: 2
-        grid_height: 2
+        #grid_width: 2
+        #grid_height: 2
         max_releases: 4
         refresh_interval: 30
         enabled: true
 
       - service_type: 'radarr'
         title: 'Upcoming Movies'
-        grid_width: 2
-        grid_height: 2
+        #grid_width: 2
+        #grid_height: 2
         max_releases: 4
         refresh_interval: 30
         enabled: true
@@ -114,9 +137,8 @@ layout:
         icon: 'lucide:github'
         enabled: true
 
-# Home Network Services
-# Configure your local network services here
-services:
+# Web Links
+links:
   # Download Services
   - name: 'TV Shows'
     url: 'https://sonarr.themysterymachine.net'
@@ -186,7 +208,17 @@ services:
     icon: 'lucide:activity'
     category: 'monitoring'
     enabled: true
-    grid_width: 2
+    grid_width: 1
+    grid_height: 1
+    position: 'auto'
+
+  - name: 'Amazon'
+    url: 'https://amazon.ca'
+    description: 'Shopping'
+    icon: 'lucide:shopping-cart'
+    category: 'shopping'
+    enabled: true
+    grid_width: 1
     grid_height: 1
     position: 'auto'
 

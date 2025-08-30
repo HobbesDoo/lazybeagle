@@ -6,110 +6,136 @@
 -->
 
 <template>
-  <div class="search-card">
-    <!-- Search Input -->
-    <div class="search-container">
-      <div class="search-input-wrapper">
-        <!-- Provider Button (replaces engine icon) -->
-        <button
-          v-if="currentSearchEngine"
-          class="provider-button"
-          @click="toggleProviderDropdown"
-          :title="`Search with ${currentSearchEngine.name}`"
-        >
-          <IconRenderer :icon="currentSearchEngine.icon" :size="16" />
-          <svg
-            class="dropdown-arrow"
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
+  <BaseCard
+    :grid-width="gridWidth"
+    :grid-height="gridHeight"
+    :grid-column-start="gridColumnStart"
+    :grid-row-start="gridRowStart"
+    :bordered="false"
+    :shadow="false"
+    :style="{
+      '--card-background': 'transparent',
+      '--card-border-color': 'transparent',
+      '--card-shadow': 'none',
+      overflow: 'visible',
+    }"
+  >
+    <div class="search-card">
+      <!-- Search Input -->
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <!-- Provider Button (replaces engine icon) -->
+          <button
+            v-if="currentSearchEngine"
+            class="provider-button"
+            @click="toggleProviderDropdown"
+            :title="`Search with ${currentSearchEngine.name}`"
           >
-            <polyline points="6,9 12,15 18,9"></polyline>
-          </svg>
-        </button>
+            <IconRenderer :icon="currentSearchEngine.icon" :size="16" style="color: #fff" />
+            <svg
+              class="dropdown-arrow"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </button>
 
-        <!-- Search Input -->
-        <input
-          ref="searchInput"
-          v-model="searchQuery"
-          type="text"
-          class="search-input"
-          :placeholder="searchPlaceholder"
-          @keydown.enter="performSearch"
-          @input="handleInput"
-          @focus="showSuggestions = true"
-          @blur="hideSuggestions"
-        />
+          <!-- Search Input -->
+          <input
+            ref="searchInput"
+            v-model="searchQuery"
+            type="text"
+            class="search-input"
+            :placeholder="searchPlaceholder"
+            @keydown.enter="performSearch"
+            @input="handleInput"
+            @focus="showSuggestions = true"
+            @blur="hideSuggestions"
+          />
 
-        <!-- Search Button -->
-        <button class="search-button" @click="performSearch" :disabled="!searchQuery.trim()">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
+          <!-- Search Button -->
+          <button class="search-button" @click="performSearch" :disabled="!searchQuery.trim()">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Provider Dropdown -->
+        <div v-if="showProviderDropdown" class="provider-dropdown">
+          <button
+            v-for="engine in searchEngines"
+            :key="engine.id"
+            class="provider-item"
+            @click="selectSearchEngine(engine)"
+            :class="{
+              'provider-active': currentSearchEngine && currentSearchEngine.id === engine.id,
+            }"
           >
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-          </svg>
-        </button>
-      </div>
+            <IconRenderer :icon="engine.icon" :size="20" />
+            <span class="provider-name">{{ engine.name }}</span>
+            <span
+              v-if="currentSearchEngine && currentSearchEngine.id === engine.id"
+              class="checkmark"
+              >✓</span
+            >
+          </button>
+        </div>
 
-      <!-- Provider Dropdown -->
-      <div v-if="showProviderDropdown" class="provider-dropdown">
-        <button
-          v-for="engine in searchEngines"
-          :key="engine.id"
-          class="provider-item"
-          @click="selectSearchEngine(engine)"
-          :class="{
-            'provider-active': currentSearchEngine && currentSearchEngine.id === engine.id,
-          }"
-        >
-          <IconRenderer :icon="engine.icon" :size="20" />
-          <span class="provider-name">{{ engine.name }}</span>
-          <span v-if="currentSearchEngine && currentSearchEngine.id === engine.id" class="checkmark"
-            >✓</span
+        <!-- Search Suggestions -->
+        <div v-if="showSuggestions && suggestions.length > 0" class="suggestions-dropdown">
+          <button
+            v-for="(suggestion, index) in suggestions"
+            :key="index"
+            class="suggestion-item"
+            @mousedown="selectSuggestion(suggestion)"
           >
-        </button>
-      </div>
-
-      <!-- Search Suggestions -->
-      <div v-if="showSuggestions && suggestions.length > 0" class="suggestions-dropdown">
-        <button
-          v-for="(suggestion, index) in suggestions"
-          :key="index"
-          class="suggestion-item"
-          @mousedown="selectSuggestion(suggestion)"
-        >
-          <svg
-            class="suggestion-icon"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-          </svg>
-          <span>{{ suggestion }}</span>
-        </button>
+            <svg
+              class="suggestion-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <span>{{ suggestion }}</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </BaseCard>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import configService from '../services/config.js'
 import IconRenderer from './IconRenderer.vue'
+import BaseCard from './BaseCard.vue'
+
+// Grid sizing props
+defineProps({
+  gridWidth: { type: Number, default: 3 },
+  gridHeight: { type: Number, default: 1 },
+  gridColumnStart: { type: Number, default: null },
+  gridRowStart: { type: Number, default: null },
+})
 
 // Search engines configuration - loaded from config
 const searchEngines = ref([])
@@ -398,7 +424,7 @@ onMounted(async () => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   margin-top: 8px;
   overflow: hidden;
-  z-index: 20;
+  z-index: 1000;
 }
 
 .provider-item {
