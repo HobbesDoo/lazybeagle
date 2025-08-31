@@ -139,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import BaseCard from './BaseCard.vue'
 import configService from '../services/config.js'
 import IconRenderer from './IconRenderer.vue'
@@ -432,6 +432,10 @@ const fetchReleases = async () => {
 
     // Sort by air date
     releases.value.sort((a, b) => new Date(a.airDate) - new Date(b.airDate))
+    setTimeout(() => {
+      resetScroll()
+      updateNavState()
+    }, 0)
   } catch (err) {
     console.error('Failed to fetch releases:', err)
 
@@ -496,8 +500,12 @@ onMounted(async () => {
   resizeObserver = new ResizeObserver(() => recomputePosterWidth())
   if (releasesGridRef.value) resizeObserver.observe(releasesGridRef.value)
   // Initial compute (next tick to ensure DOM painted)
-  setTimeout(recomputePosterWidth, 0)
+  setTimeout(() => {
+    recomputePosterWidth()
+    resetScroll()
+  }, 0)
   window.addEventListener('resize', recomputePosterWidth)
+  await nextTick()
   if (releasesGridRef.value) {
     releasesGridRef.value.addEventListener('scroll', updateNavState, { passive: true })
   }
@@ -551,6 +559,13 @@ const scrollBy = (direction) => {
   const step = Math.max(posterItemWidth.value * 2, Math.floor(el.clientWidth * 0.9))
   const target = el.scrollLeft + direction * step
   el.scrollTo({ left: target, behavior: 'smooth' })
+}
+
+const resetScroll = () => {
+  const el = releasesGridRef.value
+  if (!el) return
+  el.scrollTo({ left: 0, behavior: 'auto' })
+  updateNavState()
 }
 </script>
 
