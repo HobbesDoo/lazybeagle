@@ -11,10 +11,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=proxy
-      - traefik.http.routers.beagle.rule=Host(`lazybeagle.themysterymachine.net`) || Host(`dash.themysterymachine.net`) || Host(`dashboard.themysterymachine.net`)
-      - traefik.http.routers.beagle.entrypoints=websecure
-      - traefik.http.routers.beagle.tls=true
-      - traefik.http.services.beagle.loadbalancer.server.port=6524
+      - traefik.http.routers.lazybeagle.rule=Host(`lazybeagle.themysterymachine.net`) || Host(`dash.themysterymachine.net`) || Host(`dashboard.themysterymachine.net`)
+      - traefik.http.routers.lazybeagle.entrypoints=websecure
+      - traefik.http.routers.lazybeagle.tls=true
+      - traefik.http.services.lazybeagle.loadbalancer.server.port=6524
     restart: unless-stopped
 
 networks:
