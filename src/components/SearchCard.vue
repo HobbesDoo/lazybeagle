@@ -168,13 +168,17 @@ const loadSearchEngines = async () => {
   searchEngines.value = configService.config.search_engines || []
   console.log('Loaded search engines from config:', searchEngines.value)
 
-  // Set default search engine if none is set
-  if (searchEngines.value.length > 0 && !currentSearchEngine.value) {
-    const defaultEngineId =
-      configService.config.layout?.search?.settings?.default_engine || 'google'
-    const engine =
-      searchEngines.value.find((e) => e.id === defaultEngineId) || searchEngines.value[0]
-    currentSearchEngine.value = engine
+  // Set default search engine: prefer boolean default flag from search.yaml
+  if (searchEngines.value.length > 0) {
+    const byFlag = searchEngines.value.find((e) => e.default === true)
+    if (byFlag) {
+      currentSearchEngine.value = byFlag
+    } else {
+      const defaultEngineId =
+        configService.config.layout?.search?.settings?.default_engine || 'google'
+      currentSearchEngine.value =
+        searchEngines.value.find((e) => e.id === defaultEngineId) || searchEngines.value[0]
+    }
   }
 }
 
@@ -336,6 +340,8 @@ const performApiSearch = async (apiType, query) => {
 
 // Load preferred search engine
 const loadPreferences = () => {
+  // If a boolean default is defined in config, always honor it and skip stored preference
+  if (searchEngines.value.some((e) => e.default === true)) return
   const preferredEngine = localStorage.getItem('preferred-search-engine')
   if (preferredEngine && searchEngines.value.length > 0) {
     const engine = searchEngines.value.find((e) => e.id === preferredEngine)
