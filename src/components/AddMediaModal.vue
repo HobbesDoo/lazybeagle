@@ -363,10 +363,13 @@ const handleAdd = async () => {
 
     // Add Readarr-specific fields
     if (props.mediaData.providerType === 'readarr') {
+      if (!formData.value.qualityProfileId && qualityProfiles.value.length > 0) {
+        formData.value.qualityProfileId = qualityProfiles.value[0].id
+      }
       payload.qualityProfileId = Number(formData.value.qualityProfileId)
       payload.rootFolderPath = rootFolderPath.value
       payload.monitored = true
-      payload.addOptions = { searchForMissingBooks: true }
+      payload.addOptions = { searchForMissing: true, searchForMissingBooks: true }
     }
 
     const response = await fetch(`${baseUrl}${endpoint}`, {
