@@ -525,11 +525,40 @@ onUnmounted(() => {
   gap: 12px;
   padding: 8px;
   height: 100%;
-  overflow-x: auto;
+  overflow-x: hidden; /* show on hover */
   overflow-y: hidden; /* keep row height stable */
   justify-content: start;
   align-items: start;
   min-height: 160px; /* allow smaller cards */
+}
+
+/* Show horizontal scrollbar only on hover */
+.releases-grid:hover {
+  overflow-x: auto;
+}
+
+/* Firefox: hide by default, show thin on hover */
+.releases-grid {
+  scrollbar-width: none;
+}
+.releases-grid:hover {
+  scrollbar-width: thin;
+}
+
+/* WebKit: hide by default */
+.releases-grid::-webkit-scrollbar {
+  height: 0px;
+}
+.releases-grid:hover::-webkit-scrollbar {
+  height: 8px;
+}
+.releases-grid:hover::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+.releases-grid:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
 }
 
 .release-item {
