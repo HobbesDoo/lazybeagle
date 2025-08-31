@@ -366,15 +366,15 @@ defineExpose({ cleanup })
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 8px 0;
+  padding: 4px 0;
 }
 
 .location-header {
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .location-name {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -382,11 +382,11 @@ defineExpose({ cleanup })
 }
 
 .main-temperature {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .temperature-large {
-  font-size: 3.5rem;
+  font-size: 2rem;
   font-weight: 200;
   color: white;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -398,8 +398,8 @@ defineExpose({ cleanup })
 .weather-status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 4px;
+  margin-bottom: 4px;
 }
 
 .weather-icon-main {
@@ -410,7 +410,7 @@ defineExpose({ cleanup })
 }
 
 .weather-condition {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);

@@ -19,7 +19,8 @@
           >
             <div class="lgp-icon">
               <img v-if="link.iconUrl" :src="link.iconUrl" :alt="`${link.name} icon`" />
-              <IconRenderer v-else :icon="link.icon || '🔗'" :size="22" />
+              <IconRenderer v-else-if="link.icon" :icon="link.icon" :size="22" />
+              <IconRenderer v-else :url="link.url" :size="22" />
             </div>
             <div class="lgp-name">{{ link.name }}</div>
           </button>

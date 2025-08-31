@@ -35,6 +35,16 @@
       :style="{ width: size + 'px', height: size + 'px' }"
     />
 
+    <!-- Favicon fallback (when no icon specified but a URL is provided) -->
+    <img
+      v-else-if="iconType === 'favicon' && faviconSrc"
+      :src="faviconSrc"
+      :alt="'favicon'"
+      class="asset-icon"
+      :style="{ width: size + 'px', height: size + 'px' }"
+      @error="handleFaviconError"
+    />
+
     <!-- Emoji or Plain Text -->
     <span
       v-else
@@ -47,14 +57,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import * as LucideIcons from 'lucide-vue-next'
 
 // Props
 const props = defineProps({
   icon: {
     type: String,
-    required: true,
+    default: '',
   },
   size: {
     type: [Number, String],
@@ -68,6 +78,10 @@ const props = defineProps({
     type: String,
     default: 'currentColor',
   },
+  url: {
+    type: String,
+    default: '',
+  },
   variant: {
     type: String,
     default: 'default', // 'default', 'muted', 'primary', 'success', 'warning', 'danger'
@@ -78,15 +92,18 @@ const props = defineProps({
 
 // Computed properties
 const iconType = computed(() => {
-  if (props.icon.startsWith('lucide:')) return 'lucide'
-  if (
-    props.icon.startsWith('fa:') ||
-    props.icon.startsWith('fas:') ||
-    props.icon.startsWith('far:')
-  )
-    return 'fontawesome'
-  if (props.icon.startsWith('asset:svg:')) return 'asset-svg'
-  if (props.icon.startsWith('asset:png:')) return 'asset-png'
+  if (props.icon) {
+    if (props.icon.startsWith('lucide:')) return 'lucide'
+    if (
+      props.icon.startsWith('fa:') ||
+      props.icon.startsWith('fas:') ||
+      props.icon.startsWith('far:')
+    )
+      return 'fontawesome'
+    if (props.icon.startsWith('asset:svg:')) return 'asset-svg'
+    if (props.icon.startsWith('asset:png:')) return 'asset-png'
+  }
+  if (!props.icon && props.url) return 'favicon'
   return 'emoji'
 })
 
@@ -150,6 +167,68 @@ const assetUrl = computed(() => {
   }
   return ''
 })
+
+// Favicon handling
+const primaryFaviconUrl = computed(() => {
+  if (!props.url) return ''
+  try {
+    const u = new URL(props.url)
+    return `${u.origin}/favicon.ico`
+  } catch {
+    return ''
+  }
+})
+
+const googleFaviconUrl = computed(() => {
+  if (!props.url) return ''
+  console.log('Google Favicon URL:', props.url, props.size)
+  try {
+    const u = new URL(props.url)
+    const targetSize = Math.max(Number(props.size) || 128, 128)
+    return `https://www.google.com/s2/favicons?domain=${u.hostname}&sz=${targetSize}`
+  } catch {
+    return ''
+  }
+})
+
+const duckDuckGoFaviconUrl = computed(() => {
+  if (!props.url) return ''
+  try {
+    const u = new URL(props.url)
+    return `https://icons.duckduckgo.com/ip3/${u.hostname}.ico`
+  } catch {
+    return ''
+  }
+})
+
+const faviconCandidates = computed(() => {
+  return [primaryFaviconUrl.value, googleFaviconUrl.value, duckDuckGoFaviconUrl.value].filter(
+    (u) => !!u,
+  )
+})
+
+const faviconIndex = ref(0)
+const faviconSrc = ref('')
+
+watch(
+  () => [faviconCandidates.value.join('|')],
+  () => {
+    faviconIndex.value = 0
+    faviconSrc.value = faviconCandidates.value[0] || ''
+  },
+  { immediate: true },
+)
+
+const handleFaviconError = (e) => {
+  console.error('Favicon error:', e)
+  const next = faviconIndex.value + 1
+  if (next < faviconCandidates.value.length) {
+    faviconIndex.value = next
+    faviconSrc.value = faviconCandidates.value[next]
+  } else {
+    faviconSrc.value = ''
+  }
+}
 </script>
 
 <style scoped>
@@ -214,11 +293,11 @@ const assetUrl = computed(() => {
 
 /* Icon type specific styles */
 .icon-lucide {
-  /* Lucide icons are already well-styled */
+  display: block;
 }
 
 .icon-fontawesome {
-  /* Font Awesome specific adjustments if needed */
+  display: block;
 }
 
 .icon-emoji {

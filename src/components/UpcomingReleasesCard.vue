@@ -215,9 +215,11 @@ const formatDate = (dateString) => {
   const releaseDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
 
   // Debug logging to check timezone issues
+  /*
   console.log(
     `Date debug: Original: ${dateString}, Parsed: ${date.toISOString()}, Local: ${date.toLocaleDateString()}`,
   )
+  */
 
   const diffTime = releaseDate - today
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -281,7 +283,12 @@ const fetchReleases = async () => {
     const startDate = new Date().toISOString().split('T')[0]
     const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-    const url = `${baseUrl}${endpoint}?start=${startDate}&end=${endDate}&unmonitored=false`
+    const additionalParams =
+      props.serviceType === 'sonarr'
+        ? '&includeSeries=true&includeEpisodeFile=true&includeEpisodeImages=true'
+        : ''
+
+    const url = `${baseUrl}${endpoint}?start=${startDate}&end=${endDate}&unmonitored=false${additionalParams}`
 
     const response = await fetch(url, {
       method: 'GET',
@@ -301,54 +308,18 @@ const fetchReleases = async () => {
 
     const data = await response.json()
 
-    // For Sonarr, we need to fetch series data separately since calendar API doesn't include full series info
-    if (props.serviceType === 'sonarr') {
-      const uniqueSeriesIds = [...new Set(data.map((item) => item.seriesId))]
-      console.log('Fetching series data for IDs:', uniqueSeriesIds)
-
-      // Fetch series data for each unique series ID
-      const seriesPromises = uniqueSeriesIds.map(async (seriesId) => {
-        try {
-          const seriesResponse = await fetch(`${baseUrl}/api/v3/series/${seriesId}`, {
-            headers: {
-              'X-Api-Key': apiKey,
-              'Content-Type': 'application/json',
-            },
-            mode: 'cors',
-          })
-          if (seriesResponse.ok) {
-            const seriesData = await seriesResponse.json()
-            return { seriesId, seriesData }
-          }
-        } catch (err) {
-          console.warn(`Failed to fetch series ${seriesId}:`, err)
-        }
-        return { seriesId, seriesData: null }
-      })
-
-      const seriesResults = await Promise.all(seriesPromises)
-
-      // Attach series data to episodes
-      seriesResults.forEach(({ seriesId, seriesData }) => {
-        if (seriesData) {
-          data.forEach((episode) => {
-            if (episode.seriesId === seriesId) {
-              episode.series = seriesData
-            }
-          })
-        }
-      })
-    }
-
     // Transform data based on service type
     releases.value = data
       .map((item) => {
+        //console.log(`${props.serviceType} item:`, item)
         const posterUrl = getPosterUrl(item)
+        /*
         if (posterUrl) {
           console.log(`${props.serviceType} poster URL:`, posterUrl)
         } else {
           console.log(`${props.serviceType} no poster URL for:`, item.title || item.series?.title)
         }
+
 
         // Debug the item structure for Sonarr (only first few items)
         if (props.serviceType === 'sonarr' && releases.value.length < 3) {
@@ -360,6 +331,7 @@ const fetchReleases = async () => {
             episodeNumber: item.episodeNumber,
           })
         }
+        */
 
         return {
           id: item.id,
@@ -367,10 +339,7 @@ const fetchReleases = async () => {
             props.serviceType === 'sonarr'
               ? `${item.series?.title || 'Unknown Series'} - S${String(item.seasonNumber || 0).padStart(2, '0')}E${String(item.episodeNumber || 0).padStart(2, '0')}`
               : item.title,
-          airDate:
-            props.serviceType === 'sonarr'
-              ? item.airDate || item.airDateUtc
-              : item.digitalRelease || item.inCinemas || item.releaseDate,
+          airDate: props.serviceType === 'sonarr' ? item.airDateUtc : item.digitalRelease,
           poster: posterUrl,
         }
       })

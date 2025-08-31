@@ -37,7 +37,8 @@
             :alt="`${item.name} icon`"
             class="icon-image"
           />
-          <IconRenderer v-else :icon="item.icon || '🔗'" :size="28" />
+          <IconRenderer v-else-if="item.icon" :icon="item.icon" :size="28" />
+          <IconRenderer v-else :url="item.url" :size="28" />
           <div
             v-if="item.type === 'GROUP'"
             class="group-indicator inside"

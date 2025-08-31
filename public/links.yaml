@@ -1,6 +1,13 @@
 # Web Links
 links:
   - type: 'LINK'
+    name: 'YouTube'
+    url: 'https://youtube.com'
+    description: 'YouTube'
+    icon: 'asset:svg:youtube'
+    enabled: true
+
+  - type: 'LINK'
     name: 'TV Shows'
     url: 'https://sonarr.themysterymachine.net'
     description: 'TV Shows'
@@ -22,25 +29,97 @@ links:
     enabled: true
 
   - type: 'LINK'
-    name: 'Amazon'
-    url: 'https://amazon.ca'
-    description: 'Shopping'
-    icon: 'asset:svg:amazon'
+    name: 'Downloads'
+    url: 'https://nzbget.themysterymachine.net'
+    description: 'Downloads'
+    icon: 'lucide:download'
     enabled: true
 
-  - type: 'LINK'
-    name: 'Realtor'
-    url: 'https://realtor.ca'
+  - type: 'GROUP'
+    name: 'Shopping'
     description: 'Shopping'
-    icon: 'asset:svg:realtor'
+    icon: 'lucide:shopping-cart'
     enabled: true
+    links:
+      - type: 'LINK'
+        name: 'Amazon'
+        url: 'https://amazon.ca'
+        description: 'Shopping'
+        icon: 'asset:svg:amazon'
+        enabled: true
 
-  - type: 'LINK'
-    name: 'Home Assisttant'
-    url: 'https://homeassistant.themysterymachine.net'
-    description: 'Home Assistant'
-    icon: 'lucide:home-assistant'
+      - type: 'LINK'
+        name: 'Costco'
+        url: 'https://costco.ca'
+        description: 'Costco'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'Realtor'
+        url: 'https://realtor.ca'
+        description: 'Shopping'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'Wayfair'
+        url: 'https://wayfair.ca'
+        description: 'Wayfair'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'London Drugs'
+        url: 'https://londondrugs.com'
+        description: 'London Drugs'
+        enabled: true
+
+  - type: 'GROUP'
+    name: 'Banking'
+    description: 'Banking'
+    icon: 'lucide:banknote'
     enabled: true
+    links:
+      - type: 'LINK'
+        name: 'RBC'
+        url: 'https://royalbank.com'
+        description: 'RBC'
+        enabled: true
+      - type: 'LINK'
+        name: 'BMO'
+        url: 'https://bmo.com'
+        description: 'BMO'
+        enabled: true
+      - type: 'LINK'
+        name: 'Scotiabank'
+        url: 'https://scotiabank.com'
+        description: 'Scotiabank'
+        enabled: true
+
+  - type: 'GROUP'
+    name: 'Gaming'
+    description: 'Gaming'
+    icon: 'lucide:gamepad-2'
+    enabled: true
+    links:
+      - type: 'LINK'
+        name: 'Playnow'
+        url: 'https://playnow.com'
+        description: 'Lottery'
+        enabled: true
+      - type: 'LINK'
+        name: 'Steam Store'
+        url: 'https://store.steampowered.com/'
+        description: 'Steam Store'
+        enabled: true
+      - type: 'LINK'
+        name: 'Fanatical'
+        url: 'https://fanatical.com'
+        description: 'Books'
+        enabled: true
+      - type: 'LINK'
+        name: 'Elden Ring'
+        url: 'https://eldenring.wiki.fextralife.com/Elden+Ring+Wiki'
+        description: 'Elden Ring Wiki'
+        enabled: true
 
   - type: 'GROUP'
     name: 'Books'
@@ -52,31 +131,45 @@ links:
         name: 'Readarr'
         url: 'https://readarr.themysterymachine.net'
         description: 'Books'
-        icon: 'lucide:book-open'
+        icon: 'asset:svg:readarr'
         enabled: true
       - type: 'LINK'
         name: 'komga'
         url: 'https://komga.themysterymachine.net'
         description: 'Comics'
-        icon: 'lucide:book-open'
+        icon: 'asset:svg:komga'
         enabled: true
       - type: 'LINK'
         name: 'calibre-web'
         url: 'https://calibre-web.themysterymachine.net'
         description: 'Ebooks'
-        icon: 'lucide:book-open'
+        icon: 'asset:svg:calibreweb'
         enabled: true
       - type: 'LINK'
         name: 'Calibre'
         url: 'https://calibre.themysterymachine.net'
         description: 'Ebooks'
-        icon: 'lucide:book-open'
+        icon: 'asset:svg:calibre'
         enabled: true
       - type: 'LINK'
         name: 'Mylar3'
         url: 'https://mylar.themysterymachine.net'
         description: 'Ebooks'
-        icon: 'lucide:book-open'
+        icon: 'asset:png:mylar3'
+        enabled: true
+
+  # Network Services
+  - type: 'GROUP'
+    name: 'Dev'
+    description: 'Development'
+    icon: 'lucide:code'
+    enabled: true
+    links:
+      - type: 'LINK'
+        name: 'Home Assisttant'
+        url: 'https://homeassistant.themysterymachine.net'
+        description: 'Home Assistant'
+        icon: 'asset:svg:home-assistant'
         enabled: true
 
   # Network Services
@@ -87,37 +180,50 @@ links:
     enabled: true
     links:
       - type: 'LINK'
+        name: 'Home Assisttant'
+        url: 'https://homeassistant.themysterymachine.net'
+        description: 'Home Assistant'
+        icon: 'asset:svg:home-assistant'
+        enabled: true
+
+      - type: 'LINK'
         name: 'Pi-hole'
         url: 'https://pihole.themysterymachine.net'
         description: 'DNS Filter'
-        icon: 'lucide:shield'
+        icon: 'asset:svg:pi-hole'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'Forgejo'
+        url: 'https://forgejo.themysterymachine.net'
+        description: 'Git Server'
+        icon: 'asset:svg:forgejo'
         enabled: true
 
       - type: 'LINK'
         name: 'Router'
         url: 'https://gateway.themysterymachine.net'
         description: 'Network Admin'
-        icon: 'lucide:router'
+        icon: 'asset:svg:ubiquiti-unifi'
         enabled: true
 
       - type: 'LINK'
         name: 'NAS'
         url: 'https://bob.themysterymachine.net'
         description: 'NAS'
-        icon: 'lucide:network'
+        icon: 'asset:svg:ugreen-nas'
         enabled: true
 
-      # Monitoring Services
       - type: 'LINK'
         name: 'Portainer'
         url: 'https://portainer.themysterymachine.net'
         description: 'Docker Management'
-        icon: 'lucide:container'
+        icon: 'asset:svg:portainer'
         enabled: true
 
       - type: 'LINK'
         name: 'Zabbix'
         url: 'https://zabbix.themysterymachine.net'
         description: 'Monitoring'
-        icon: 'lucide:activity'
+        icon: 'asset:svg:zabbix'
         enabled: true
