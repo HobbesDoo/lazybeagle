@@ -11,13 +11,10 @@
     :grid-height="gridHeight"
     :grid-column-start="gridColumnStart"
     :grid-row-start="gridRowStart"
-    :bordered="false"
-    :shadow="false"
-    :style="{
-      '--card-background': 'transparent',
-      '--card-border-color': 'transparent',
-      '--card-shadow': 'none',
-    }"
+    :bordered="true"
+    :shadow="true"
+    :frameless="true"
+    :style="{}"
   >
     <div class="clock-card">
       <!-- Main Time Display -->

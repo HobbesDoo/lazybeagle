@@ -108,6 +108,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+
+  /**
+   * Remove outer background/border/shadow chrome
+   */
+  frameless: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['click'])
@@ -121,8 +129,8 @@ const cardClasses = computed(() => {
     `card-variant-${props.variant}`,
     {
       'card-clickable': props.clickable,
-      'card-bordered': props.bordered,
-      'card-shadow': props.shadow,
+      'card-bordered': props.bordered && !props.frameless,
+      'card-shadow': props.shadow && !props.frameless,
       'card-loading-state': props.loading,
     },
   ]
@@ -135,6 +143,9 @@ const cardStyle = computed(() => {
   const style = {
     '--card-grid-width': props.gridWidth,
     '--card-grid-height': props.gridHeight,
+  }
+  if (props.frameless) {
+    style['--card-background'] = 'transparent'
   }
   style.gridColumn = props.gridColumnStart
     ? `${props.gridColumnStart} / span ${props.gridWidth}`
@@ -168,7 +179,7 @@ const handleClick = () => {
   min-height: 120px;
 
   /* Appearance */
-  background: var(--card-background, #ffffff);
+  background: var(--card-background, transparent);
   border-radius: var(--card-border-radius, 12px);
   overflow: hidden;
   transition: all 0.2s ease-in-out;

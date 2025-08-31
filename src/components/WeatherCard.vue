@@ -11,13 +11,10 @@
     :grid-height="gridHeight"
     :grid-column-start="gridColumnStart"
     :grid-row-start="gridRowStart"
-    :bordered="false"
-    :shadow="false"
-    :style="{
-      '--card-background': 'transparent',
-      '--card-border-color': 'transparent',
-      '--card-shadow': 'none',
-    }"
+    :bordered="true"
+    :shadow="true"
+    :frameless="true"
+    :style="{}"
   >
     <div class="weather-card">
       <!-- Loading State -->
@@ -287,7 +284,7 @@ defineExpose({ cleanup })
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px;
+  padding: 20px; /* slightly smaller to avoid clipping in tight grid rows */
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);

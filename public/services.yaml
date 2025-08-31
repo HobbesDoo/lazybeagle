@@ -1,0 +1,27 @@
+services:
+  - id: 'Radarr'
+    name: 'Radarr'
+    url: 'https://radarr.themysterymachine.net'
+    api_type: 'radarr'
+    api_key: 'b2c75a609dfe49f5a48f73c7606caa78'
+    icon: 'lucide:film'
+
+  - id: 'Sonarr'
+    name: 'Sonarr'
+    url: 'https://sonarr.themysterymachine.net'
+    api_type: 'sonarr'
+    api_key: '1098ec9f76e0439c9ddad8652ed87c8e'
+    icon: 'lucide:tv'
+
+  - id: 'OpenWeather'
+    name: 'OpenWeather'
+    api_type: 'openweather'
+    api_key: 'fc315fbd1c64cd2f058a9d33789a1993'
+    icon: 'lucide:cloud'
+
+  - id: 'Unsplash'
+    name: 'Unsplash'
+    api_type: 'unsplash'
+    access_key: 'QSBhos-6WIEr4v0s7tFNHrSgGPTm9tfybyNAMW596Wg'
+    secret_key: 'CmrJ-0YwWwGQ2g-dCaT1plqkxyVC5TVzGvT489fUs0E'
+    icon: 'lucide:image'

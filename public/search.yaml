@@ -1,0 +1,61 @@
+layout:
+  search:
+    enabled: true
+    position: 'search'
+    settings:
+      default_engine: 'google'
+      show_suggestions: true
+      max_suggestions: 5
+
+# Search Engine Configuration
+search_engines:
+  - id: 'sonarr'
+    name: 'TV Shows'
+    url: 'lookup' # Special indicator for API-based search
+    icon: 'lucide:tv'
+    placeholder: 'Search for TV Shows'
+    display_type: 'popup'
+    api_type: 'sonarr'
+    default: true
+
+  - id: 'radarr'
+    name: 'Movies'
+    url: 'lookup' # Special indicator for API-based search
+    icon: 'lucide:film'
+    placeholder: 'Search for Movies'
+    display_type: 'popup'
+    api_type: 'radarr'
+    default: false
+
+  - id: 'readarr'
+    name: 'Books'
+    url: 'lookup' # Special indicator for API-based search
+    icon: 'lucide:book-open'
+    placeholder: 'Search for Books'
+    display_type: 'popup'
+    api_type: 'readarr'
+    default: false
+
+  - id: 'google'
+    name: 'Google'
+    url: 'https://www.google.com/search?q='
+    icon: 'lucide:search'
+    placeholder: 'Search Google or type a URL'
+    display_type: 'new_tab' # 'new_tab' or 'popup'
+    default: false
+
+  - id: 'duckduckgo'
+    name: 'DuckDuckGo'
+    url: 'https://duckduckgo.com/?q='
+    icon: 'lucide:search'
+    placeholder: 'Search DuckDuckGo'
+    display_type: 'new_tab'
+    default: false
+
+  - id: 'youtube'
+    name: 'YouTube'
+    url: 'https://www.youtube.com/results?search_query='
+    icon: 'lucide:play'
+    placeholder: 'Search YouTube'
+    display_type: 'new_tab'
+    default: false

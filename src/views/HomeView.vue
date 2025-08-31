@@ -18,6 +18,7 @@ const showSettingsPanel = ref(false)
 const currentBackground = ref('')
 const backgroundService = new BackgroundService(configService)
 const enabledServices = ref([])
+const enabledLinks = ref([])
 
 // Search popup state
 const showSearchPopup = ref(false)
@@ -68,10 +69,11 @@ const loadSettings = async () => {
   settings.gridColumns = dashboardSettings.grid.columns
   settings.gridRows = dashboardSettings.grid.rows
 
-  // Load enabled services
+  // Load enabled services and links
   enabledServices.value = configService.getEnabledServices()
+  enabledLinks.value = configService.getEnabledLinks()
   console.log('Loaded enabled services:', enabledServices.value)
-  console.log('All links from config:', configService.config.links)
+  console.log('Loaded enabled links:', enabledLinks.value)
   console.log('Config loaded?', configService.isLoaded.value)
 }
 
@@ -312,12 +314,14 @@ onUnmounted(() => {
         :grid-width="layout.links?.width || 4"
         :grid-height="layout.links?.height || 4"
         :links="
-          enabledServices.map((s) => ({
-            name: s.name,
-            url: s.url,
-            description: s.description,
-            icon: s.icon,
-            iconUrl: s.icon_url,
+          enabledLinks.map((l) => ({
+            name: l.name,
+            url: l.url,
+            description: l.description,
+            icon: l.icon,
+            iconUrl: l.icon_url,
+            type: l.type || 'LINK',
+            links: l.links || [],
           }))
         "
       />

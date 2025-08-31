@@ -12,23 +12,23 @@
     :grid-column-start="gridColumnStart"
     :grid-row-start="gridRowStart"
     :variant="variant"
-    :clickable="true"
-    :bordered="false"
-    :shadow="false"
+    :clickable="!(links && links.length)"
+    :bordered="true"
+    :shadow="true"
     @click="handleClick"
     :style="{
-      '--card-background': 'transparent',
-      '--card-border-color': 'transparent',
+      '--card-background': 'rgba(255, 255, 255, 0.10)',
+      '--card-border-color': 'rgba(255, 255, 255, 0.20)',
       '--card-shadow': 'none',
     }"
   >
     <!-- Container mode: render multiple links if provided -->
     <div v-if="links && links.length" class="links-grid" @click.stop>
       <button
-        v-for="(item, idx) in normalizedLinks"
-        :key="idx"
+        v-for="(item, index) in normalizedLinks"
+        :key="index"
         class="link-item"
-        @click="openLink(item.url)"
+        @click="handleItemClick($event, item, index)"
         :title="item.description || item.name"
       >
         <div class="app-icon">
@@ -39,6 +39,25 @@
             class="icon-image"
           />
           <IconRenderer v-else :icon="item.icon || '🔗'" :size="28" />
+          <div
+            v-if="item.type === 'GROUP'"
+            class="group-indicator inside"
+            :class="{ open: isPanelOpen && openGroupIndex === index }"
+            aria-hidden="true"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
         </div>
         <div class="app-name">{{ item.name }}</div>
       </button>
@@ -53,12 +72,22 @@
       <div class="app-name">{{ serviceName }}</div>
     </div>
   </BaseCard>
+  <LinkGroupPanel
+    :is-open="isPanelOpen"
+    :anchor-rect="panelAnchor"
+    :links="panelLinks"
+    :open-in-new-tab="openInNewTab"
+    :title="panelTitle"
+    :icon="panelIcon"
+    @close="isPanelOpen = false"
+  />
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import IconRenderer from './IconRenderer.vue'
 import BaseCard from './BaseCard.vue'
+import LinkGroupPanel from './LinkGroupPanel.vue'
 
 const props = defineProps({
   /**
@@ -66,7 +95,7 @@ const props = defineProps({
    */
   serviceName: {
     type: String,
-    required: true,
+    default: '',
   },
 
   /**
@@ -83,8 +112,9 @@ const props = defineProps({
    */
   url: {
     type: String,
-    required: true,
+    default: '',
     validator: (value) => {
+      if (!value) return true
       try {
         new URL(value)
         return true
@@ -188,6 +218,7 @@ const emit = defineEmits(['click'])
  * Handle card click - navigate to URL
  */
 const handleClick = () => {
+  if (!props.url) return
   if (props.openInNewTab) {
     window.open(props.url, '_blank', 'noopener,noreferrer')
   } else {
@@ -205,13 +236,15 @@ const handleClick = () => {
  */
 const normalizedLinks = computed(() => {
   return (props.links || [])
-    .filter((l) => l && l.url && l.name)
+    .filter((l) => l && l.name && (l.url || (l.type || 'LINK').toUpperCase() === 'GROUP'))
     .map((l) => ({
       name: l.name,
       url: l.url,
       description: l.description || '',
       icon: l.icon || '',
       iconUrl: l.iconUrl || l.icon_url || '',
+      type: (l.type || 'LINK').toUpperCase(),
+      links: l.links || [],
     }))
 })
 
@@ -221,6 +254,29 @@ const openLink = (url) => {
     window.open(url, '_blank', 'noopener,noreferrer')
   } else {
     window.location.href = url
+  }
+}
+
+// GROUP support
+import { ref } from 'vue'
+const isPanelOpen = ref(false)
+const panelAnchor = ref(null)
+const panelLinks = ref([])
+const openGroupIndex = ref(-1)
+const panelTitle = ref('')
+const panelIcon = ref('')
+
+const handleItemClick = (evt, item, index) => {
+  if ((item.type || 'LINK') === 'GROUP') {
+    const rect = evt.currentTarget.getBoundingClientRect()
+    panelAnchor.value = rect
+    panelLinks.value = (item.links || []).filter((l) => l && l.url && l.name)
+    isPanelOpen.value = true
+    openGroupIndex.value = index
+    panelTitle.value = item.name
+    panelIcon.value = item.icon || ''
+  } else {
+    openLink(item.url)
   }
 }
 </script>
@@ -256,6 +312,31 @@ const openLink = (url) => {
 .link-item:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.08);
+}
+
+.group-indicator {
+  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.app-icon {
+  position: relative;
+}
+.group-indicator.inside {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.group-indicator.inside.open {
+  transform: rotate(90deg);
 }
 
 .web-link-card {

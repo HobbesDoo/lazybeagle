@@ -11,14 +11,10 @@
     :grid-height="gridHeight"
     :grid-column-start="gridColumnStart"
     :grid-row-start="gridRowStart"
-    :bordered="false"
-    :shadow="false"
-    :style="{
-      '--card-background': 'transparent',
-      '--card-border-color': 'transparent',
-      '--card-shadow': 'none',
-      overflow: 'visible',
-    }"
+    :bordered="true"
+    :shadow="true"
+    :frameless="true"
+    :style="{ '--card-shadow': 'none', '--card-content-padding': '12px', overflow: 'visible' }"
   >
     <div class="search-card">
       <!-- Search Input -->
@@ -348,10 +344,10 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
-  padding: 32px 24px;
+  gap: 12px;
+  padding: 8px 12px;
   width: 100%;
-  max-width: 600px;
+  max-width: 560px;
   margin: 0 auto;
 }
 
@@ -363,11 +359,11 @@ onMounted(async () => {
 .search-input-wrapper {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50px;
-  padding: 4px 4px 4px 16px;
+  padding: 2px 2px 2px 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   width: 100%;
@@ -382,18 +378,20 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin-right: 12px;
+  margin-right: 8px;
+  color: #f9fafb;
+  backdrop-filter: blur(20px);
 }
 
 .provider-button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .provider-icon img {
@@ -477,38 +475,41 @@ onMounted(async () => {
   border: none;
   outline: none;
   background: transparent;
-  font-size: 1.125rem;
-  color: #1f2937;
-  padding: 14px 0;
+  font-size: 1rem;
+  color: #f9fafb;
+  padding: 10px 0;
   font-weight: 400;
 }
 
 .search-input::placeholder {
-  color: rgba(31, 41, 55, 0.6);
+  color: rgba(249, 250, 251, 0.6);
 }
 
 .search-button {
-  background: #3b82f6;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #f9fafb;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  backdrop-filter: blur(20px);
 }
 
 .search-button:hover:not(:disabled) {
-  background: #2563eb;
+  background: rgba(255, 255, 255, 0.14);
   transform: scale(1.05);
 }
 
 .search-button:disabled {
-  background: #9ca3af;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(249, 250, 251, 0.6);
   cursor: not-allowed;
 }
 
@@ -554,16 +555,9 @@ onMounted(async () => {
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .search-input-wrapper {
-    background: rgba(31, 41, 55, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .search-input {
-    color: #f9fafb;
-  }
-
-  .search-input::placeholder {
-    color: rgba(249, 250, 251, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
   }
 
   .provider-button {

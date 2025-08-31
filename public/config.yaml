@@ -1,27 +1,13 @@
 # LazyBeagle Dashboard Configuration
 # This file controls all aspects of your home network dashboard
 
-# API Keys and External Services
-api_keys:
-  unsplash:
-    access_key: 'QSBhos-6WIEr4v0s7tFNHrSgGPTm9tfybyNAMW596Wg' # Your Unsplash Access Key
-    secret_key: 'CmrJ-0YwWwGQ2g-dCaT1plqkxyVC5TVzGvT489fUs0E' # Your Unsplash Secret Key (optional, for write operations)
-  openweather:
-    api_key: 'fc315fbd1c64cd2f058a9d33789a1993' # Your OpenWeatherMap API Key
-  sonarr:
-    api_key: '1098ec9f76e0439c9ddad8652ed87c8e'
-  radarr:
-    api_key: 'b2c75a609dfe49f5a48f73c7606caa78'
-  readarr:
-    api_key: '7de8371b967942628595219d8affb4c3'
-
 # Dashboard Settings
 dashboard:
   # Background settings
   background:
     theme: 'nature' # Theme: nature, urban, minimal, space, ocean, mountains
     rotation_enabled: true # Enable automatic background rotation
-    rotation_interval: 30 # Minutes between background changes
+    rotation_interval: 60 # Minutes between background changes
     quality: 80 # Image quality (1-100)
     blur_overlay: 0.3 # Background blur overlay (0-1)
 
@@ -47,233 +33,29 @@ dashboard:
   layout:
     cards:
       clock:
-        col: 2
+        col: 4
         row: 1
-        width: 2
-        height: 2
+        width: 4
+        height: 3
       search:
         col: 2
-        row: 2
-        width: 3
+        row: 4
+        width: 6
         height: 1
       weather:
-        width: 1
-        height: 1
+        width: 2
+        height: 3
       upcoming_tv:
-        width: 2
-        height: 1
+        width: 3
+        height: 2
       upcoming_movies:
-        width: 2
-        height: 1
-
-# Card Layout Configuration
-# This defines which cards appear where on your dashboard
-layout:
-  # Main functional cards
-  clock:
-    enabled: true
-    position: 'clock' # Grid area position
-    settings:
-      show_seconds: false
-      show_date: true
-      show_temperature: true
-
-  search:
-    enabled: true
-    position: 'search' # Grid area position
-    settings:
-      default_engine: 'google'
-      show_suggestions: true
-      max_suggestions: 5
-
-  weather:
-    enabled: true
-    position: 'weather' # Grid area position
-    settings:
-      show_details: true
-      show_forecast: false
-
-  # Upcoming releases cards
-  upcoming_releases:
-    enabled: true
-    position: 'releases' # Grid area position
-    cards:
-      - service_type: 'sonarr'
-        title: 'Upcoming TV'
-        #grid_width: 2
-        #grid_height: 2
-        max_releases: 4
-        refresh_interval: 30
-        enabled: true
-
-      - service_type: 'radarr'
-        title: 'Upcoming Movies'
-        #grid_width: 2
-        #grid_height: 2
-        max_releases: 4
-        refresh_interval: 30
-        enabled: true
-
-  # Quick link cards
-  quick_links:
-    enabled: true
-    position: 'links' # Grid area position
-    cards:
-      - name: 'Google'
-        url: 'https://google.com'
-        description: 'Search'
-        icon: 'lucide:search'
-        enabled: true
-
-      - name: 'YouTube'
-        url: 'https://youtube.com'
-        description: 'Videos'
-        icon: 'lucide:play'
-        enabled: true
-
-      - name: 'GitHub'
-        url: 'https://github.com'
-        description: 'Code'
-        icon: 'lucide:github'
-        enabled: true
-
-# Web Links
-links:
-  # Download Services
-  - name: 'TV Shows'
-    url: 'https://sonarr.themysterymachine.net'
-    description: 'TV Shows'
-    icon: 'lucide:tv'
-    category: 'download'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  - name: 'Movies'
-    url: 'https://radarr.themysterymachine.net'
-    description: 'Movies'
-    icon: 'lucide:film'
-    category: 'download'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  - name: 'Books'
-    url: 'https://readarr.themysterymachine.net'
-    description: 'Books'
-    icon: 'lucide:book-open'
-    category: 'download'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  # Network Services
-  - name: 'Pi-hole'
-    url: 'https://pihole.themysterymachine.net'
-    description: 'DNS Filter'
-    icon: 'lucide:shield'
-    category: 'network'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  - name: 'Router'
-    url: 'https://gateway.themysterymachine.net'
-    description: 'Network Admin'
-    icon: 'lucide:router'
-    category: 'network'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  # Monitoring Services
-  - name: 'Portainer'
-    url: 'https://portainer.themysterymachine.net'
-    description: 'Docker Management'
-    icon: 'lucide:container'
-    category: 'monitoring'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  - name: 'Zabbix'
-    url: 'https://zabbix.themysterymachine.net'
-    description: 'Monitoring'
-    icon: 'lucide:activity'
-    category: 'monitoring'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-  - name: 'Amazon'
-    url: 'https://amazon.ca'
-    description: 'Shopping'
-    icon: 'lucide:shopping-cart'
-    category: 'shopping'
-    enabled: true
-    grid_width: 1
-    grid_height: 1
-    position: 'auto'
-
-# Search Engine Configuration
-search_engines:
-  - id: 'sonarr'
-    name: 'TV Shows'
-    url: 'lookup' # Special indicator for API-based search
-    icon: 'lucide:tv'
-    placeholder: 'Search for TV Shows'
-    display_type: 'popup'
-    api_type: 'sonarr'
-    default: false
-
-  - id: 'radarr'
-    name: 'Movies'
-    url: 'lookup' # Special indicator for API-based search
-    icon: 'lucide:film'
-    placeholder: 'Search for Movies'
-    display_type: 'popup'
-    api_type: 'radarr'
-    default: false
-
-  - id: 'readarr'
-    name: 'Books'
-    url: 'lookup' # Special indicator for API-based search
-    icon: 'lucide:book-open'
-    placeholder: 'Search for Books'
-    display_type: 'popup'
-    api_type: 'readarr'
-    default: false
-
-  - id: 'google'
-    name: 'Google'
-    url: 'https://www.google.com/search?q='
-    icon: 'lucide:search'
-    placeholder: 'Search Google or type a URL'
-    display_type: 'new_tab' # 'new_tab' or 'popup'
-    default: true
-
-  - id: 'duckduckgo'
-    name: 'DuckDuckGo'
-    url: 'https://duckduckgo.com/?q='
-    icon: 'lucide:search'
-    placeholder: 'Search DuckDuckGo'
-    display_type: 'new_tab'
-    default: false
-
-  - id: 'youtube'
-    name: 'YouTube'
-    url: 'https://www.youtube.com/results?search_query='
-    icon: 'lucide:play'
-    placeholder: 'Search YouTube'
-    display_type: 'new_tab'
-    default: false
+        width: 3
+        height: 2
+      links:
+        col: 1
+        row: 12
+        width: 12
+        height: 2
 
 # Theme Configuration
 themes:

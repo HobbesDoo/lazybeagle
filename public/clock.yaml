@@ -1,0 +1,8 @@
+layout:
+  clock:
+    enabled: true
+    position: 'clock'
+    settings:
+      show_seconds: false
+      show_date: true
+      show_temperature: true

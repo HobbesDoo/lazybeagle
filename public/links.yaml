@@ -1,0 +1,72 @@
+# Web Links
+links:
+  - type: 'LINK'
+    name: 'TV Shows'
+    url: 'https://sonarr.themysterymachine.net'
+    description: 'TV Shows'
+    icon: 'lucide:tv'
+    enabled: true
+
+  - type: 'LINK'
+    name: 'Movies'
+    url: 'https://radarr.themysterymachine.net'
+    description: 'Movies'
+    icon: 'lucide:film'
+    enabled: true
+
+  - type: 'LINK'
+    name: 'Books'
+    url: 'https://readarr.themysterymachine.net'
+    description: 'Books'
+    icon: 'lucide:book-open'
+    enabled: true
+
+  - type: 'LINK'
+    name: 'Amazon'
+    url: 'https://amazon.ca'
+    description: 'Shopping'
+    icon: 'asset:svg:amazon'
+    enabled: true
+
+  - type: 'LINK'
+    name: 'Realtor'
+    url: 'https://realtor.ca'
+    description: 'Shopping'
+    icon: 'asset:svg:realtor'
+    enabled: true
+
+  # Network Services
+  - type: 'GROUP'
+    name: 'Network'
+    description: 'Network Services'
+    icon: 'lucide:network'
+    enabled: true
+    links:
+      - type: 'LINK'
+        name: 'Pi-hole'
+        url: 'https://pihole.themysterymachine.net'
+        description: 'DNS Filter'
+        icon: 'lucide:shield'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'Router'
+        url: 'https://gateway.themysterymachine.net'
+        description: 'Network Admin'
+        icon: 'lucide:router'
+        enabled: true
+
+      # Monitoring Services
+      - type: 'LINK'
+        name: 'Portainer'
+        url: 'https://portainer.themysterymachine.net'
+        description: 'Docker Management'
+        icon: 'lucide:container'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'Zabbix'
+        url: 'https://zabbix.themysterymachine.net'
+        description: 'Monitoring'
+        icon: 'lucide:activity'
+        enabled: true

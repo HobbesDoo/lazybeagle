@@ -1,0 +1,10 @@
+dashboard:
+  weather:
+    location: 'Surrey, CA'
+    units: 'metric'
+    refresh_interval: 10
+# optionally:
+layout:
+  weather:
+    enabled: true
+    position: 'weather'

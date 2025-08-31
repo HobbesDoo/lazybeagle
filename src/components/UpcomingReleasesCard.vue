@@ -7,14 +7,27 @@
 
 <template>
   <BaseCard
-    :title="title"
     :grid-width="gridWidth"
     :grid-height="gridHeight"
     :grid-column-start="gridColumnStart"
     :grid-row-start="gridRowStart"
     variant="default"
     :loading="loading"
+    :style="{
+      '--card-title-font-size': '0.95rem',
+      '--card-header-padding': '12px 12px 0 20px',
+      '--card-content-padding': '8px 12px 12px',
+      '--card-background': 'rgba(255, 255, 255, 0.10)',
+      '--card-border-color': 'rgba(255, 255, 255, 0.20)',
+      backdropFilter: 'blur(20px)',
+    }"
   >
+    <template #header>
+      <div class="card-title-row">
+        <IconRenderer :icon="serviceType === 'sonarr' ? 'lucide:tv' : 'lucide:film'" :size="16" />
+        <h3 class="card-title-text">{{ title }}</h3>
+      </div>
+    </template>
     <div class="upcoming-releases">
       <div v-if="error" class="error-message">
         {{ error }}
@@ -74,6 +87,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import BaseCard from './BaseCard.vue'
 import configService from '../services/config.js'
+import IconRenderer from './IconRenderer.vue'
 
 const props = defineProps({
   /**
@@ -152,8 +166,10 @@ const recomputePosterWidth = () => {
   const el = releasesGridRef.value
   if (!el) return
   const height = el.clientHeight || 0
-  // Reserve space for title/date text below poster and padding
-  const reserved = 56 // px
+  // Reserve space for date text + internal padding using current font size
+  const styles = window.getComputedStyle(el)
+  const baseFont = parseFloat(styles.fontSize) || 14
+  const reserved = Math.max(56, Math.round(baseFont * 3 + 16))
   const candidate = (2 / 3) * Math.max(0, height - reserved)
   // Clamp to sensible bounds
   const clamped = Math.max(90, Math.min(220, Math.floor(candidate)))
@@ -439,6 +455,7 @@ onMounted(async () => {
   if (releasesGridRef.value) resizeObserver.observe(releasesGridRef.value)
   // Initial compute (next tick to ensure DOM painted)
   setTimeout(recomputePosterWidth, 0)
+  window.addEventListener('resize', recomputePosterWidth)
 })
 
 // Watch for refresh interval changes
@@ -457,6 +474,7 @@ onUnmounted(() => {
     }
     resizeObserver = null
   }
+  window.removeEventListener('resize', recomputePosterWidth)
 })
 </script>
 
@@ -465,6 +483,19 @@ onUnmounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 6px; /* additional nudge to the right */
+}
+
+.card-title-text {
+  margin: 0;
+  font-size: var(--card-title-font-size, 0.95rem);
+  font-weight: 600;
 }
 
 .error-message {
@@ -489,10 +520,10 @@ onUnmounted(() => {
   padding: 8px;
   height: 100%;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: hidden; /* keep row height stable */
   justify-content: start;
   align-items: start;
-  min-height: 200px; /* Ensure consistent height */
+  min-height: 160px; /* allow smaller cards */
 }
 
 .release-item {
@@ -529,7 +560,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* keep full poster visible when downsized */
   border-radius: 8px;
   z-index: 2;
 }
@@ -557,7 +588,7 @@ onUnmounted(() => {
 }
 
 .release-title {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 500;
   color: white;
   line-height: 1.2;
@@ -571,7 +602,7 @@ onUnmounted(() => {
 }
 
 .release-date {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.8);
   font-weight: 400;
 }
@@ -579,20 +610,20 @@ onUnmounted(() => {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .releases-grid {
-    gap: 8px;
-    padding: 4px;
+    gap: 10px;
+    padding: 6px;
   }
 
   .release-item {
-    width: 100px;
+    width: var(--poster-item-width, 110px);
   }
 
   .release-title {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
   }
 
   .release-date {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
   }
 }
 </style>

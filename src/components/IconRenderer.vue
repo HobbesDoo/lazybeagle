@@ -26,6 +26,15 @@
       :style="{ fontSize: size + 'px' }"
     ></i>
 
+    <!-- Asset-based SVG/PNG Icons (served from public/icons/{svg,png}) -->
+    <img
+      v-else-if="iconType === 'asset-svg' || iconType === 'asset-png'"
+      :src="assetUrl"
+      :alt="iconName"
+      class="asset-icon"
+      :style="{ width: size + 'px', height: size + 'px' }"
+    />
+
     <!-- Emoji or Plain Text -->
     <span
       v-else
@@ -76,6 +85,8 @@ const iconType = computed(() => {
     props.icon.startsWith('far:')
   )
     return 'fontawesome'
+  if (props.icon.startsWith('asset:svg:')) return 'asset-svg'
+  if (props.icon.startsWith('asset:png:')) return 'asset-png'
   return 'emoji'
 })
 
@@ -85,6 +96,12 @@ const iconName = computed(() => {
   }
   if (iconType.value === 'fontawesome') {
     return props.icon.replace(/^(fa|fas|far):/, '')
+  }
+  if (iconType.value === 'asset-svg') {
+    return props.icon.replace('asset:svg:', '')
+  }
+  if (iconType.value === 'asset-png') {
+    return props.icon.replace('asset:png:', '')
   }
   return props.icon
 })
@@ -122,6 +139,16 @@ const colorClass = computed(() => {
 
 const iconClass = computed(() => {
   return ['icon-container', `icon-${iconType.value}`, `icon-variant-${props.variant}`]
+})
+
+const assetUrl = computed(() => {
+  if (iconType.value === 'asset-svg') {
+    return `/icons/svg/${iconName.value}.svg`
+  }
+  if (iconType.value === 'asset-png') {
+    return `/icons/png/${iconName.value}.png`
+  }
+  return ''
 })
 </script>
 

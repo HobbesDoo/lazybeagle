@@ -145,20 +145,81 @@ export class ConfigService {
       // ALWAYS load from YAML first, then merge with localStorage changes
       console.log('Loading config from YAML file...')
 
-      // Load from YAML file
-      const response = await fetch('/config.yaml')
-      if (!response.ok) {
-        throw new Error(`Failed to load config: ${response.statusText}`)
+      // Helper to fetch YAML, returning null on 404
+      const fetchYamlIfExists = async (path) => {
+        const res = await fetch(path)
+        if (!res.ok) {
+          if (res.status === 404) return null
+          throw new Error(`Failed to load ${path}: ${res.statusText}`)
+        }
+        const text = await res.text()
+        return yaml.load(text)
       }
 
-      const yamlText = await response.text()
-      const yamlConfig = yaml.load(yamlText)
-      console.log('Loaded YAML config:', yamlConfig)
+      // Load base and optional partials
+      const baseConfig = await fetchYamlIfExists('/config.yaml')
+      if (!baseConfig) throw new Error('Missing /config.yaml')
+      console.log('Loaded base YAML config:', baseConfig)
+
+      const [clockCfg, searchCfg, upcomingCfg, weatherCfg, linksCfg, servicesCfg] =
+        await Promise.all([
+          fetchYamlIfExists('/clock.yaml'),
+          fetchYamlIfExists('/search.yaml'),
+          fetchYamlIfExists('/upcomingReleases.yaml'),
+          fetchYamlIfExists('/weather.yaml'),
+          fetchYamlIfExists('/links.yaml'),
+          fetchYamlIfExists('/services.yaml'),
+        ])
+
+      // Normalize partials into expected structure for deep merge
+      const normalizePartials = () => {
+        const out = {}
+        // Components might come as layout or direct key; accept both
+        if (clockCfg) {
+          out.layout = out.layout || {}
+          out.layout.clock = clockCfg.layout?.clock || clockCfg.clock || clockCfg
+        }
+        if (searchCfg) {
+          out.layout = out.layout || {}
+          out.layout.search = searchCfg.layout?.search || searchCfg.search || searchCfg
+          // Move search engines list from search.yaml into root config
+          if (searchCfg.search_engines || searchCfg.searchEngines) {
+            out.search_engines = searchCfg.search_engines || searchCfg.searchEngines
+          }
+        }
+        if (upcomingCfg) {
+          out.layout = out.layout || {}
+          out.layout.upcoming_releases =
+            upcomingCfg.layout?.upcoming_releases || upcomingCfg.upcoming_releases || upcomingCfg
+        }
+        if (weatherCfg) {
+          // Weather may affect dashboard.weather and/or layout.weather
+          if (weatherCfg.dashboard?.weather || weatherCfg.weather) {
+            out.dashboard = out.dashboard || {}
+            out.dashboard.weather = weatherCfg.dashboard?.weather || weatherCfg.weather
+          }
+          if (weatherCfg.layout?.weather || weatherCfg.weather?.layout) {
+            out.layout = out.layout || {}
+            out.layout.weather = weatherCfg.layout?.weather || weatherCfg.weather?.layout
+          }
+        }
+        if (linksCfg) {
+          out.links = linksCfg.links || linksCfg
+        }
+        if (servicesCfg) {
+          out.services = servicesCfg.services || servicesCfg
+        }
+        return out
+      }
+
+      const yamlConfig = this.deepMerge(baseConfig, normalizePartials())
+      console.log('Loaded merged YAML from partials:', yamlConfig)
 
       // Merge with defaults to ensure all properties exist
       const mergedConfig = this.mergeWithDefaults(yamlConfig)
       console.log('Merged YAML config:', mergedConfig)
       console.log('Services in YAML config:', mergedConfig.services)
+      console.log('Links in YAML config:', mergedConfig.links)
       console.log('Links in YAML config:', mergedConfig.links)
 
       // Apply the YAML config first
@@ -317,8 +378,24 @@ export class ConfigService {
   /**
    * Get API key for a service
    */
-  getApiKey(service, keyType = 'api_key') {
-    return this.get(`api_keys.${service}.${keyType}`)
+  getApiKey(serviceType, keyType = 'api_key') {
+    // Prefer API key embedded in services.yaml entries
+    const services = this.config.services || []
+    const svc = services.find((s) => {
+      const type = (s.api_type || s.type || '').toLowerCase()
+      return type === String(serviceType).toLowerCase()
+    })
+    if (svc && svc[keyType]) return svc[keyType]
+
+    // Special case Unsplash keys (access_key/secret_key)
+    if (serviceType.toLowerCase() === 'unsplash') {
+      if (svc && (svc.access_key || svc.secret_key)) {
+        return keyType === 'secret_key' ? svc.secret_key : svc.access_key
+      }
+    }
+
+    // Fallback to legacy api_keys map under dashboard config
+    return this.get(`api_keys.${serviceType}.${keyType}`)
   }
 
   /**
@@ -360,18 +437,26 @@ export class ConfigService {
    * Get enabled services
    */
   getEnabledServices() {
-    const allLinks =
-      Array.isArray(this.config.links) && this.config.links.length
-        ? this.config.links
-        : this.config.services || []
-    console.log('getEnabledServices called, all links:', allLinks)
+    const services = this.config.services || []
+    console.log('getEnabledServices called, all services:', services)
     console.log(
-      'Links details:',
-      allLinks.map((s) => ({ name: s.name, enabled: s.enabled })),
+      'Services details:',
+      services.map((s) => ({ name: s.name, enabled: s.enabled })),
     )
-    const enabled = allLinks.filter((service) => service.enabled)
+    const enabled = services.filter((service) => service.enabled)
+    console.log('Filtered enabled services:', enabled)
+    console.log('Enabled services count:', enabled.length)
+    return enabled
+  }
+
+  /**
+   * Get enabled links (pure hyperlinks, not data providers)
+   */
+  getEnabledLinks() {
+    const links = this.config.links || []
+    console.log('getEnabledLinks called, all links:', links)
+    const enabled = links.filter((link) => link.enabled)
     console.log('Filtered enabled links:', enabled)
-    console.log('Enabled links count:', enabled.length)
     return enabled
   }
 
@@ -379,23 +464,23 @@ export class ConfigService {
    * Get service configuration by type (e.g., 'sonarr', 'radarr')
    */
   getServiceByType(serviceType) {
-    const services =
-      (this.config.links && this.config.links.length ? this.config.links : this.config.services) ||
-      []
-    return services.find((service) => {
-      // Check if the service name/type matches (case-insensitive)
-      const serviceName = service.name?.toLowerCase()
+    const services = this.config.services || []
+    const lower = String(serviceType).toLowerCase()
 
-      // Also check for common variations
-      const variations = {
-        sonarr: ['tv shows', 'sonarr'],
-        radarr: ['movies', 'radarr'],
-        readarr: ['books', 'readarr'],
-      }
+    // Prefer api_type match
+    let found = services.find((s) => String(s.api_type || s.type || '').toLowerCase() === lower)
+    if (found) return found
 
-      const validNames = variations[serviceType.toLowerCase()] || [serviceType.toLowerCase()]
-      return validNames.includes(serviceName)
-    })
+    // Fallback: name variations by display name
+    const variations = {
+      sonarr: ['tv shows', 'sonarr'],
+      radarr: ['movies', 'radarr'],
+      readarr: ['books', 'readarr'],
+      openweather: ['openweather', 'weather'],
+      unsplash: ['unsplash'],
+    }
+    const validNames = variations[lower] || [lower]
+    return services.find((s) => validNames.includes(String(s.name || '').toLowerCase()))
   }
 
   /**

@@ -1,0 +1,15 @@
+layout:
+  upcoming_releases:
+    enabled: true
+    position: 'releases'
+    cards:
+      - service_type: 'sonarr'
+        title: 'Upcoming TV'
+        max_releases: 4
+        refresh_interval: 30
+        enabled: true
+      - service_type: 'radarr'
+        title: 'Upcoming Movies'
+        max_releases: 4
+        refresh_interval: 30
+        enabled: true
