@@ -1,18 +1,15 @@
 # build stage
 FROM --platform=$BUILDPLATFORM node:22-alpine3.21 AS build-stage
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
-RUN corepack enable && corepack use pnpm@10
-
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+# Install deps using npm since package-lock.json exists in repo
+COPY package.json package-lock.json ./
+RUN npm ci
 
+# Build
 COPY . .
-RUN pnpm build
+RUN npm run build
 
 # production stage
 FROM alpine:3.21
