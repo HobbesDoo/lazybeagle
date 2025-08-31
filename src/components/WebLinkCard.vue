@@ -285,7 +285,7 @@ const handleItemClick = (evt, item, index) => {
 .links-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(90px, 110px));
-  gap: 12px;
+  gap: 6px;
   padding: 8px;
   width: 100%;
   height: 100%;

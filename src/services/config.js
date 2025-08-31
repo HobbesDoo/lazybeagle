@@ -156,19 +156,33 @@ export class ConfigService {
         return yaml.load(text)
       }
 
+      // Try multiple candidate paths and return the first that exists
+      const fetchFirstExisting = async (paths) => {
+        for (const p of paths) {
+          try {
+            const data = await fetchYamlIfExists(p)
+            if (data) return data
+          } catch {
+            // continue to next candidate on error (except 404 already handled)
+          }
+        }
+        return null
+      }
+
       // Load base and optional partials
-      const baseConfig = await fetchYamlIfExists('/config.yaml')
+      // Prefer mounted config directory at /config, fallback to root
+      const baseConfig = await fetchFirstExisting(['/config/config.yaml', '/config.yaml'])
       if (!baseConfig) throw new Error('Missing /config.yaml')
       console.log('Loaded base YAML config:', baseConfig)
 
       const [clockCfg, searchCfg, upcomingCfg, weatherCfg, linksCfg, servicesCfg] =
         await Promise.all([
-          fetchYamlIfExists('/clock.yaml'),
-          fetchYamlIfExists('/search.yaml'),
-          fetchYamlIfExists('/upcomingReleases.yaml'),
-          fetchYamlIfExists('/weather.yaml'),
-          fetchYamlIfExists('/links.yaml'),
-          fetchYamlIfExists('/services.yaml'),
+          fetchFirstExisting(['/config/clock.yaml', '/clock.yaml']),
+          fetchFirstExisting(['/config/search.yaml', '/search.yaml']),
+          fetchFirstExisting(['/config/upcomingReleases.yaml', '/upcomingReleases.yaml']),
+          fetchFirstExisting(['/config/weather.yaml', '/weather.yaml']),
+          fetchFirstExisting(['/config/links.yaml', '/links.yaml']),
+          fetchFirstExisting(['/config/services.yaml', '/services.yaml']),
         ])
 
       // Normalize partials into expected structure for deep merge
