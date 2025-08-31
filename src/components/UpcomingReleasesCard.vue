@@ -152,7 +152,7 @@ const props = defineProps({
    */
   maxReleases: {
     type: Number,
-    default: 4,
+    default: null,
   },
 
   /**
