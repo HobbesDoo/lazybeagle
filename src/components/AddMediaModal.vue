@@ -213,7 +213,7 @@ const rootFolder = computed(() => {
 const rootFolderPath = computed(() => {
   if (rootFolder.value?.path) return rootFolder.value.path
   // Fallbacks by provider
-  if (props.mediaData.providerType === 'readarr') return '/data/media/books'
+  if (props.mediaData.providerType === 'readarr') return '/books'
   if (props.mediaData.providerType === 'radarr') return '/data/media/movies'
   if (props.mediaData.providerType === 'sonarr') return '/data/media/tv'
   return '/data/media'
@@ -302,7 +302,20 @@ const loadOptions = async () => {
           defaultProfile = qualityProfiles.value[0]
         }
       }
-      formData.value.qualityProfileId = (defaultProfile || qualityProfiles.value[0] || {}).id || ''
+      // If Readarr and root folder has defaultQualityProfileId, prefer that id
+      if (props.mediaData.providerType === 'readarr' && rootFolders.value.length > 0) {
+        const qid = rootFolders.value[0]?.defaultQualityProfileId
+        const match = qualityProfiles.value.find((p) => p.id === qid)
+        if (match) {
+          formData.value.qualityProfileId = match.id
+        } else {
+          formData.value.qualityProfileId =
+            (defaultProfile || qualityProfiles.value[0] || {}).id || ''
+        }
+      } else {
+        formData.value.qualityProfileId =
+          (defaultProfile || qualityProfiles.value[0] || {}).id || ''
+      }
     }
 
     if (rootFolderResponse.ok) {
@@ -331,9 +344,8 @@ const handleAdd = async () => {
     if (props.mediaData.providerType === 'sonarr') endpoint = '/api/v3/series'
     if (props.mediaData.providerType === 'readarr') endpoint = '/api/v1/book'
 
-    // Prepare payload (spread source data first, then enforce required fields)
-    const payload = {
-      ...props.mediaData, // include ids, titleSlug, images, etc.
+    // Prepare payload
+    let payload = {
       title: props.mediaData.title,
       qualityProfileId: Number(formData.value.qualityProfileId),
       rootFolderPath: rootFolderPath.value,
@@ -361,15 +373,35 @@ const handleAdd = async () => {
       payload.monitored = true
     }
 
-    // Add Readarr-specific fields
+    // Add Readarr-specific fields (construct clean minimal payload)
     if (props.mediaData.providerType === 'readarr') {
       if (!formData.value.qualityProfileId && qualityProfiles.value.length > 0) {
         formData.value.qualityProfileId = qualityProfiles.value[0].id
       }
-      payload.qualityProfileId = Number(formData.value.qualityProfileId)
-      payload.rootFolderPath = rootFolderPath.value
-      payload.monitored = true
-      payload.addOptions = { searchForMissing: true, searchForMissingBooks: true }
+      const authorId = props.mediaData.authorId || props.mediaData.author?.id || null
+      const foreignBookId =
+        props.mediaData.foreignBookId ||
+        props.mediaData.goodreadsId ||
+        props.mediaData.bookId ||
+        null
+
+      payload = {
+        title: props.mediaData.title,
+        qualityProfileId: Number(formData.value.qualityProfileId),
+        metadataProfileId: rootFolder.value?.defaultMetadataProfileId || 1,
+        rootFolderPath: rootFolderPath.value,
+        monitored: true,
+        addOptions: { searchForMissingBooks: true, searchForMissing: true, monitor: 'all' },
+        ...(authorId ? { author: { id: authorId } } : {}),
+        ...(foreignBookId ? { foreignBookId } : {}),
+        books: [
+          {
+            title: props.mediaData.title,
+            monitored: true,
+            ...(foreignBookId ? { foreignBookId } : {}),
+          },
+        ],
+      }
     }
 
     const response = await fetch(`${baseUrl}${endpoint}`, {
