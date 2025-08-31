@@ -189,12 +189,25 @@ const recomputePosterWidth = () => {
 }
 
 // Computed properties
+const effectiveMaxReleases = computed(() => {
+  // Prefer prop when provided
+  if (props.maxReleases && Number(props.maxReleases) > 0) return Number(props.maxReleases)
+  // Fallback to config: layout.upcoming_releases.cards[*].max_releases by service_type
+  const cards =
+    configService.get('layout.upcoming_releases.cards') ||
+    configService.get('dashboard.layout.upcoming_releases.cards') ||
+    []
+  const match = cards.find((c) => (c.service_type || c.serviceType) === props.serviceType)
+  const cfgVal = match?.max_releases || match?.maxReleases
+  return cfgVal && Number(cfgVal) > 0 ? Number(cfgVal) : 4
+})
+
 const displayReleases = computed(() => {
-  const actualReleases = releases.value.slice(0, props.maxReleases)
+  const actualReleases = releases.value.slice(0, effectiveMaxReleases.value)
   const placeholders = []
 
   // Add placeholder items to maintain consistent layout
-  for (let i = actualReleases.length; i < props.maxReleases; i++) {
+  for (let i = actualReleases.length; i < effectiveMaxReleases.value; i++) {
     placeholders.push({
       id: `placeholder-${i}`,
       title: '',
@@ -431,7 +444,7 @@ const setupRefreshTimer = () => {
 onMounted(async () => {
   await configService.loadConfig()
   await fetchReleases()
-  setupRefreshTimer()
+  //setupRefreshTimer()
   // Observe size to recompute poster width on container changes
   resizeObserver = new ResizeObserver(() => recomputePosterWidth())
   if (releasesGridRef.value) resizeObserver.observe(releasesGridRef.value)
