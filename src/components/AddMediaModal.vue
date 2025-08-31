@@ -324,22 +324,25 @@ const handleAdd = async () => {
 
     const endpoint = props.mediaData.providerType === 'sonarr' ? '/api/v3/series' : '/api/v3/movie'
 
-    // Prepare payload
+    // Prepare payload (spread source data first, then enforce required fields)
     const payload = {
+      ...props.mediaData, // include ids, titleSlug, images, etc.
       title: props.mediaData.title,
-      qualityProfileId: formData.value.qualityProfileId,
+      qualityProfileId: Number(formData.value.qualityProfileId),
       rootFolderPath: rootFolderPath.value,
       addOptions: {
         searchForMissing: formData.value.searchForMissing,
       },
       monitored: true,
-      ...props.mediaData, // Include all original data (tmdbId, tvdbId, etc.)
     }
 
     // Add Sonarr-specific fields
     if (props.mediaData.providerType === 'sonarr') {
       payload.seasonFolder = true
       payload.seriesType = 'standard'
+      payload.rootFolderPath = rootFolderPath.value
+      payload.qualityProfileId = Number(formData.value.qualityProfileId)
+      payload.monitored = true
       payload.monitoringOptions = {
         monitor: formData.value.monitor,
       }
