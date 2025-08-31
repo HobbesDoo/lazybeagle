@@ -37,51 +37,95 @@
         No upcoming releases found
       </div>
 
-      <div
-        v-else
-        class="releases-grid"
-        ref="releasesGridRef"
-        :style="{ '--poster-item-width': posterItemWidth + 'px' }"
-      >
-        <div
-          v-for="release in displayReleases"
-          :key="release.id"
-          class="release-item"
-          :class="{ 'placeholder-item': release.isPlaceholder }"
-          :title="release.isPlaceholder ? '' : release.title"
+      <div v-else class="releases-wrapper">
+        <button
+          v-if="canScrollLeft"
+          class="nav-button nav-left"
+          @click="scrollBy(-1)"
+          aria-label="Scroll left"
         >
-          <!-- Poster -->
-          <div
-            class="poster-container"
-            @click="!release.isPlaceholder && openDetails(release)"
-            :class="{ clickable: !release.isPlaceholder }"
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
           >
-            <!-- Try to load poster, but always show placeholder as backup -->
-            <div class="poster-placeholder" :class="{ 'empty-placeholder': release.isPlaceholder }">
-              <img
-                v-if="release.poster && !release.isPlaceholder"
-                :src="release.poster"
-                :alt="release.title"
-                class="poster-image"
-                @error="handleImageError"
-                @load="handleImageLoad"
-              />
-              <span v-if="!release.isPlaceholder" class="placeholder-icon">{{
-                serviceType === 'sonarr' ? '📺' : '🎬'
-              }}</span>
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <div
+          class="releases-grid"
+          ref="releasesGridRef"
+          :style="{ '--poster-item-width': posterItemWidth + 'px' }"
+        >
+          <div
+            v-for="release in displayReleases"
+            :key="release.id"
+            class="release-item"
+            :class="{ 'placeholder-item': release.isPlaceholder }"
+            :title="release.isPlaceholder ? '' : release.title"
+          >
+            <!-- Poster -->
+            <div
+              class="poster-container"
+              @click="!release.isPlaceholder && openDetails(release)"
+              :class="{ clickable: !release.isPlaceholder }"
+            >
+              <!-- Try to load poster, but always show placeholder as backup -->
+              <div
+                class="poster-placeholder"
+                :class="{ 'empty-placeholder': release.isPlaceholder }"
+              >
+                <img
+                  v-if="release.poster && !release.isPlaceholder"
+                  :src="release.poster"
+                  :alt="release.title"
+                  class="poster-image"
+                  @error="handleImageError"
+                  @load="handleImageLoad"
+                />
+                <span v-if="!release.isPlaceholder" class="placeholder-icon">{{
+                  serviceType === 'sonarr' ? '📺' : '🎬'
+                }}</span>
+              </div>
+            </div>
+
+            <!-- Release Info -->
+            <div v-if="!release.isPlaceholder" class="release-info">
+              <!--div class="release-title">{{ release.title }}</div -->
+              <div class="release-date">{{ formatDate(release.airDate) }}</div>
+            </div>
+            <div v-else class="release-info placeholder-info">
+              <!-- div class="release-title">&nbsp;</div -->
+              <div class="release-date">&nbsp;</div>
             </div>
           </div>
-
-          <!-- Release Info -->
-          <div v-if="!release.isPlaceholder" class="release-info">
-            <!--div class="release-title">{{ release.title }}</div -->
-            <div class="release-date">{{ formatDate(release.airDate) }}</div>
-          </div>
-          <div v-else class="release-info placeholder-info">
-            <!-- div class="release-title">&nbsp;</div -->
-            <div class="release-date">&nbsp;</div>
-          </div>
         </div>
+
+        <button
+          v-if="canScrollRight"
+          class="nav-button nav-right"
+          @click="scrollBy(1)"
+          aria-label="Scroll right"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </div>
     </div>
   </BaseCard>
@@ -171,6 +215,8 @@ const error = ref(null)
 
 // Sizing: poster width scales with container height to preserve 2:3 aspect ratio
 const releasesGridRef = ref(null)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(false)
 const posterItemWidth = ref(120)
 let resizeObserver = null
 
@@ -186,6 +232,7 @@ const recomputePosterWidth = () => {
   // Clamp to sensible bounds
   const clamped = Math.max(90, Math.min(220, Math.floor(candidate)))
   posterItemWidth.value = clamped
+  updateNavState()
 }
 
 // Computed properties
@@ -451,6 +498,9 @@ onMounted(async () => {
   // Initial compute (next tick to ensure DOM painted)
   setTimeout(recomputePosterWidth, 0)
   window.addEventListener('resize', recomputePosterWidth)
+  if (releasesGridRef.value) {
+    releasesGridRef.value.addEventListener('scroll', updateNavState, { passive: true })
+  }
 })
 
 // Details popup state and handlers
@@ -481,7 +531,27 @@ onUnmounted(() => {
     resizeObserver = null
   }
   window.removeEventListener('resize', recomputePosterWidth)
+  if (releasesGridRef.value) {
+    releasesGridRef.value.removeEventListener('scroll', updateNavState)
+  }
 })
+
+// Scrolling controls
+const updateNavState = () => {
+  const el = releasesGridRef.value
+  if (!el) return
+  const maxScrollLeft = el.scrollWidth - el.clientWidth
+  canScrollLeft.value = el.scrollLeft > 2
+  canScrollRight.value = el.scrollLeft < maxScrollLeft - 2
+}
+
+const scrollBy = (direction) => {
+  const el = releasesGridRef.value
+  if (!el) return
+  const step = Math.max(posterItemWidth.value * 2, Math.floor(el.clientWidth * 0.9))
+  const target = el.scrollLeft + direction * step
+  el.scrollTo({ left: target, behavior: 'smooth' })
+}
 </script>
 
 <style scoped>
@@ -525,40 +595,45 @@ onUnmounted(() => {
   gap: 12px;
   padding: 8px;
   height: 100%;
-  overflow-x: hidden; /* show on hover */
+  overflow-x: auto;
   overflow-y: hidden; /* keep row height stable */
   justify-content: start;
   align-items: start;
   min-height: 160px; /* allow smaller cards */
 }
 
-/* Show horizontal scrollbar only on hover */
-.releases-grid:hover {
-  overflow-x: auto;
-}
-
-/* Firefox: hide by default, show thin on hover */
+/* Hide scrollbar visuals to avoid layout shift */
 .releases-grid {
   scrollbar-width: none;
 }
-.releases-grid:hover {
-  scrollbar-width: thin;
+.releases-grid::-webkit-scrollbar {
+  height: 0;
+}
+.releases-wrapper {
+  position: relative;
 }
 
-/* WebKit: hide by default */
-.releases-grid::-webkit-scrollbar {
-  height: 0px;
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-radius: 9999px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
-.releases-grid:hover::-webkit-scrollbar {
-  height: 8px;
+.nav-left {
+  left: 4px;
 }
-.releases-grid:hover::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-}
-.releases-grid:hover::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 8px;
+.nav-right {
+  right: 4px;
 }
 
 .release-item {
