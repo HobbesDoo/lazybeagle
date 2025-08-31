@@ -54,9 +54,15 @@
             @blur="hideSuggestions"
           />
 
-          <!-- Search Button -->
-          <button class="search-button" @click="performSearch" :disabled="!searchQuery.trim()">
+          <!-- Search Button / Progress -->
+          <button
+            class="search-button"
+            @click="performSearch"
+            :disabled="!searchQuery.trim() || searching"
+          >
+            <span v-if="searching" class="search-spinner"></span>
             <svg
+              v-else
               width="20"
               height="20"
               viewBox="0 0 24 24"
@@ -114,6 +120,11 @@
             <span>{{ suggestion }}</span>
           </button>
         </div>
+
+        <!-- Inline progress overlay -->
+        <div v-if="searching" class="search-progress-overlay" aria-live="polite" aria-busy="true">
+          <span class="search-spinner large"></span>
+        </div>
       </div>
     </div>
   </BaseCard>
@@ -143,6 +154,7 @@ const showSuggestions = ref(false)
 const showProviderDropdown = ref(false)
 const suggestions = ref([])
 const searchInput = ref(null)
+const searching = ref(false)
 
 // Computed properties
 const searchPlaceholder = computed(() => currentSearchEngine.value?.placeholder || 'Search...')
@@ -243,9 +255,13 @@ const performSearch = async () => {
   // Check if it's a URL
   const isUrl = /^https?:\/\//.test(query) || /^\w+\.\w+/.test(query)
 
+  // Start progress indicator
+  searching.value = true
+
   if (isUrl) {
     const url = query.startsWith('http') ? query : `https://${query}`
     window.open(url, '_blank', 'noopener,noreferrer')
+    searching.value = false
   } else {
     const engine = currentSearchEngine.value
 
@@ -267,11 +283,14 @@ const performSearch = async () => {
           results: [],
           error: error.message,
         })
+      } finally {
+        searching.value = false
       }
     } else {
       // Handle traditional search engines (new tab)
       const searchUrl = engine.url + encodeURIComponent(query)
       window.open(searchUrl, '_blank', 'noopener,noreferrer')
+      searching.value = false
     }
   }
 
@@ -511,6 +530,39 @@ onMounted(async () => {
   border-color: rgba(255, 255, 255, 0.12);
   color: rgba(249, 250, 251, 0.6);
   cursor: not-allowed;
+}
+
+.search-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: lb-spin 1s linear infinite;
+}
+.search-spinner.large {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}
+
+.search-progress-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 50px;
+}
+
+@keyframes lb-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .suggestions-dropdown {
