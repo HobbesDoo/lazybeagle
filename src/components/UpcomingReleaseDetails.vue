@@ -1,5 +1,5 @@
 <template>
-  <Teleport to="body">
+  <teleport to="body">
     <div v-if="isOpen" class="urd-overlay" @click.self="emit('close')">
       <div class="urd-panel" role="dialog" aria-modal="true">
         <button class="urd-close" @click="emit('close')" aria-label="Close">×</button>
@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-  </Teleport>
+  </teleport>
 </template>
 
 <script setup>
