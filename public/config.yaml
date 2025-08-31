@@ -48,15 +48,15 @@ dashboard:
         width: 2
         height: 3
       upcoming_tv:
-        col: 9
-        row: 6
-        width: 3
-        height: 2
+        col: 8
+        row: 5
+        width: 4
+        height: 3
       upcoming_movies:
-        col: 9
+        col: 8
         row: 8
-        width: 3
-        height: 2
+        width: 4
+        height: 3
       links:
         col: 1
         row: 11

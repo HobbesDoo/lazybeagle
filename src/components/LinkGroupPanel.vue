@@ -47,14 +47,36 @@ const panelRef = ref(null)
 
 const panelStyle = computed(() => {
   const rect = props.anchorRect
-  const margin = 8
+  const margin = 6
   const width = Math.min(window.innerWidth - 2 * margin, 520)
-  const top = Math.min(rect ? rect.bottom + margin : 80, window.innerHeight - 240)
+  const maxCap = Math.min(window.innerHeight * 0.6, 420)
+  let top = 80
+  let maxHeight = maxCap
+  let transform = 'translateY(0)'
+
+  if (rect) {
+    const spaceBelow = window.innerHeight - rect.bottom - margin
+    const spaceAbove = rect.top - margin
+    const showBelow = spaceBelow >= spaceAbove
+
+    if (showBelow) {
+      top = rect.bottom + margin // directly under the icon
+      maxHeight = Math.min(maxCap, Math.max(160, spaceBelow))
+      transform = 'translateY(0)'
+    } else {
+      top = rect.top - margin // anchor to the top edge of the icon
+      maxHeight = Math.min(maxCap, Math.max(160, spaceAbove))
+      transform = 'translateY(-100%)' // pop exactly above the icon
+    }
+  }
+
   const left = Math.min(rect ? rect.left : margin, window.innerWidth - width - margin)
   return {
     top: `${Math.max(margin, top)}px`,
     left: `${Math.max(margin, left)}px`,
     width: `${width}px`,
+    maxHeight: `${maxHeight}px`,
+    transform,
   }
 })
 
