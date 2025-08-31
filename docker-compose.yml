@@ -7,7 +7,7 @@ services:
     container_name: lazybeagle
     networks: [proxy]
     volumes:
-      - ${CONTAINERS}/lazybeagle/config:/www:ro
+      - ${CONTAINERS}/lazybeagle/config:/config:ro
     labels:
       - traefik.enable=true
       - traefik.docker.network=proxy
