@@ -342,7 +342,7 @@ const handleAdd = async () => {
 
     let endpoint = '/api/v3/movie'
     if (props.mediaData.providerType === 'sonarr') endpoint = '/api/v3/series'
-    if (props.mediaData.providerType === 'readarr') endpoint = '/api/v1/book'
+    if (props.mediaData.providerType === 'readarr') endpoint = '/api/v1/author'
 
     // Prepare payload
     let payload = {
@@ -373,34 +373,27 @@ const handleAdd = async () => {
       payload.monitored = true
     }
 
-    // Add Readarr-specific fields (construct clean minimal payload)
+    // Readarr: add author instead of book to satisfy API requirements
     if (props.mediaData.providerType === 'readarr') {
       if (!formData.value.qualityProfileId && qualityProfiles.value.length > 0) {
         formData.value.qualityProfileId = qualityProfiles.value[0].id
       }
-      const authorId = props.mediaData.authorId || props.mediaData.author?.id || null
-      const foreignBookId =
-        props.mediaData.foreignBookId ||
-        props.mediaData.goodreadsId ||
-        props.mediaData.bookId ||
-        null
+      const authorName =
+        props.mediaData.author?.authorName ||
+        props.mediaData.author?.name ||
+        props.mediaData.authorName ||
+        'Unknown Author'
+      const foreignAuthorId =
+        props.mediaData.author?.foreignAuthorId || props.mediaData.foreignAuthorId || null
 
       payload = {
-        title: props.mediaData.title,
+        authorName,
+        foreignAuthorId: foreignAuthorId || undefined,
         qualityProfileId: Number(formData.value.qualityProfileId),
         metadataProfileId: rootFolder.value?.defaultMetadataProfileId || 1,
         rootFolderPath: rootFolderPath.value,
         monitored: true,
-        addOptions: { searchForMissingBooks: true, searchForMissing: true, monitor: 'all' },
-        ...(authorId ? { author: { id: authorId } } : {}),
-        ...(foreignBookId ? { foreignBookId } : {}),
-        books: [
-          {
-            title: props.mediaData.title,
-            monitored: true,
-            ...(foreignBookId ? { foreignBookId } : {}),
-          },
-        ],
+        addOptions: { searchForMissingBooks: true },
       }
     }
 
