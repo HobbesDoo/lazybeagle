@@ -673,10 +673,6 @@ const resetScroll = () => {
 .releases-grid::-webkit-scrollbar {
   height: 0;
 }
-.releases-wrapper {
-  position: relative;
-}
-
 .nav-button {
   position: absolute;
   top: 50%;
@@ -699,11 +695,9 @@ const resetScroll = () => {
   width: 24px;
   height: 24px;
 }
-.nav-left {
-  left: 4px;
-}
+.nav-left,
 .nav-right {
-  right: 4px;
+  display: none; /* poster-overlay nav removed in favor of header controls */
 }
 
 .nav-header-controls {
