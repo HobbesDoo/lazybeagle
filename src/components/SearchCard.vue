@@ -16,7 +16,7 @@
     :frameless="true"
     :style="{ '--card-shadow': 'none', '--card-content-padding': '12px', overflow: 'visible' }"
   >
-    <div class="search-card">
+    <div class="search-card" ref="rootRef">
       <!-- Search Input -->
       <div class="search-container">
         <div class="search-input-wrapper">
@@ -131,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import configService from '../services/config.js'
 import IconRenderer from './IconRenderer.vue'
 import BaseCard from './BaseCard.vue'
@@ -155,6 +155,7 @@ const showProviderDropdown = ref(false)
 const suggestions = ref([])
 const searchInput = ref(null)
 const searching = ref(false)
+const rootRef = ref(null)
 
 // Computed properties
 const searchPlaceholder = computed(() => currentSearchEngine.value?.placeholder || 'Search...')
@@ -360,6 +361,26 @@ onMounted(async () => {
   // Focus search input
   if (searchInput.value) {
     searchInput.value.focus()
+  }
+  const onGlobalPointerDown = (e) => {
+    const el = rootRef.value
+    if (el && !el.contains(e.target)) {
+      showProviderDropdown.value = false
+      showSuggestions.value = false
+    }
+  }
+  // store on window to remove later
+  window.__lb_onGlobalPointerDown = onGlobalPointerDown
+  window.addEventListener('mousedown', onGlobalPointerDown)
+  window.addEventListener('touchstart', onGlobalPointerDown, { passive: true })
+})
+
+onUnmounted(() => {
+  const onGlobalPointerDown = window.__lb_onGlobalPointerDown
+  if (onGlobalPointerDown) {
+    window.removeEventListener('mousedown', onGlobalPointerDown)
+    window.removeEventListener('touchstart', onGlobalPointerDown)
+    delete window.__lb_onGlobalPointerDown
   }
 })
 </script>
