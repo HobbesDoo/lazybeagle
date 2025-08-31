@@ -23,9 +23,51 @@
     }"
   >
     <template #header>
-      <div class="card-title-row">
-        <IconRenderer :icon="serviceType === 'sonarr' ? 'lucide:tv' : 'lucide:film'" :size="16" />
-        <h3 class="card-title-text">{{ title }}</h3>
+      <div class="card-header-row">
+        <div class="card-title-row">
+          <IconRenderer :icon="serviceType === 'sonarr' ? 'lucide:tv' : 'lucide:film'" :size="16" />
+          <h3 class="card-title-text">{{ title }}</h3>
+        </div>
+        <div class="nav-header-controls">
+          <button
+            v-if="canScrollLeft"
+            class="nav-button header"
+            @click="scrollBy(-1)"
+            aria-label="Scroll left"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button
+            v-if="canScrollRight"
+            class="nav-button header"
+            @click="scrollBy(1)"
+            aria-label="Scroll right"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
     </template>
     <div class="upcoming-releases">
@@ -576,6 +618,13 @@ const resetScroll = () => {
   flex-direction: column;
 }
 
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .card-title-row {
   display: flex;
   align-items: center;
@@ -644,11 +693,22 @@ const resetScroll = () => {
   justify-content: center;
   cursor: pointer;
 }
+.nav-button.header {
+  position: static;
+  transform: none;
+  width: 24px;
+  height: 24px;
+}
 .nav-left {
   left: 4px;
 }
 .nav-right {
   right: 4px;
+}
+
+.nav-header-controls {
+  display: flex;
+  gap: 6px;
 }
 
 .release-item {
