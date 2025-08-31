@@ -51,7 +51,11 @@
           :title="release.isPlaceholder ? '' : release.title"
         >
           <!-- Poster -->
-          <div class="poster-container">
+          <div
+            class="poster-container"
+            @click="!release.isPlaceholder && openDetails(release)"
+            :class="{ clickable: !release.isPlaceholder }"
+          >
             <!-- Try to load poster, but always show placeholder as backup -->
             <div class="poster-placeholder" :class="{ 'empty-placeholder': release.isPlaceholder }">
               <img
@@ -81,6 +85,13 @@
       </div>
     </div>
   </BaseCard>
+  <UpcomingReleaseDetails
+    :is-open="isDetailsOpen"
+    :release="detailsRelease"
+    :poster="detailsPoster"
+    :service-type="serviceType"
+    @close="isDetailsOpen = false"
+  />
 </template>
 
 <script setup>
@@ -88,6 +99,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import BaseCard from './BaseCard.vue'
 import configService from '../services/config.js'
 import IconRenderer from './IconRenderer.vue'
+import UpcomingReleaseDetails from './UpcomingReleaseDetails.vue'
 
 const props = defineProps({
   /**
@@ -341,6 +353,7 @@ const fetchReleases = async () => {
               : item.title,
           airDate: props.serviceType === 'sonarr' ? item.airDateUtc : item.digitalRelease,
           poster: posterUrl,
+          raw: item,
         }
       })
       .filter((item) => {
@@ -426,6 +439,17 @@ onMounted(async () => {
   setTimeout(recomputePosterWidth, 0)
   window.addEventListener('resize', recomputePosterWidth)
 })
+
+// Details popup state and handlers
+const isDetailsOpen = ref(false)
+const detailsRelease = ref(null)
+const detailsPoster = ref('')
+
+const openDetails = (release) => {
+  detailsRelease.value = release.raw || null
+  detailsPoster.value = release.poster || ''
+  isDetailsOpen.value = true
+}
 
 // Watch for refresh interval changes
 watch(() => props.refreshInterval, setupRefreshTimer)
