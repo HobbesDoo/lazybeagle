@@ -13,6 +13,13 @@ services:
     api_key: '1098ec9f76e0439c9ddad8652ed87c8e'
     icon: 'lucide:tv'
 
+  - id: 'Readarr'
+    name: 'Readarr'
+    url: 'https://readarr.themysterymachine.net'
+    api_type: 'readarr'
+    api_key: '7de8371b967942628595219d8affb4c3'
+    icon: 'lucide:book-open'
+
   - id: 'OpenWeather'
     name: 'OpenWeather'
     api_type: 'openweather'

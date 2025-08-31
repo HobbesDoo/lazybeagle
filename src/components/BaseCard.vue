@@ -215,7 +215,7 @@ const handleClick = () => {
   /* Appearance */
   background: var(--card-background, transparent);
   border-radius: var(--card-border-radius, 12px);
-  overflow: hidden;
+  overflow: visible; /* allow inner content/dropdowns to escape if needed */
   transition: all 0.2s ease-in-out;
 }
 

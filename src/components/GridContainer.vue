@@ -80,9 +80,13 @@ const gridStyle = computed(() => {
 <style scoped>
 .grid-container {
   /* Full viewport layout */
-  height: 100vh;
+  height: 100dvh; /* better on iOS Safari */
+  min-height: -webkit-fill-available;
   width: 100vw;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto; /* avoid content being cut off on iPad */
+  -webkit-overflow-scrolling: touch; /* momentum scroll on iOS */
+  overscroll-behavior: contain;
 
   /* CSS Grid setup */
   display: grid;
@@ -90,6 +94,8 @@ const gridStyle = computed(() => {
   grid-template-rows: repeat(var(--grid-rows, 4), 1fr);
   gap: var(--grid-gap, 16px);
   padding: var(--grid-padding, 24px);
+  padding-bottom: calc(var(--grid-padding, 24px) + env(safe-area-inset-bottom, 0px) + 58px);
+  scroll-padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 58px);
 
   /* Background and styling */
   background: var(--grid-background, #f8fafc);

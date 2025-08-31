@@ -288,7 +288,9 @@ const handleItemClick = (evt, item, index) => {
   padding: 8px;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* hide overflow for now */
+  overflow-y: auto; /* allow labels to remain visible when tight on height */
+  overscroll-behavior: contain;
+  padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
   align-content: center;
   justify-content: center;
   justify-items: center;

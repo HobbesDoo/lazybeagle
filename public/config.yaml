@@ -13,7 +13,7 @@ dashboard:
 
   # Time and locale settings
   time:
-    format: '24' # Time format: "12" or "24"
+    format: '12' # Time format: "12" or "24"
     timezone: 'auto' # Timezone: "auto" or specific timezone like "America/New_York"
 
   # Weather settings
