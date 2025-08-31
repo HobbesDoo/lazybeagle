@@ -5,7 +5,7 @@ layout:
     cards:
       - service_type: 'sonarr'
         title: 'Upcoming TV'
-        max_releases: 4
+        max_releases: 10
         refresh_interval: 30
         enabled: true
       - service_type: 'radarr'
