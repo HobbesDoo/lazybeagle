@@ -141,7 +141,7 @@ links:
         enabled: true
       - type: 'LINK'
         name: 'calibre-web'
-        url: 'https://calibre-web.themysterymachine.net'
+        url: 'https://calibreweb.themysterymachine.net'
         description: 'Ebooks'
         icon: 'asset:svg:calibreweb'
         enabled: true
