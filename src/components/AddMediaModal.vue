@@ -211,7 +211,12 @@ const rootFolder = computed(() => {
 })
 
 const rootFolderPath = computed(() => {
-  return rootFolder.value?.path || '/data/media/videos'
+  if (rootFolder.value?.path) return rootFolder.value.path
+  // Fallbacks by provider
+  if (props.mediaData.providerType === 'readarr') return '/data/media/books'
+  if (props.mediaData.providerType === 'radarr') return '/data/media/movies'
+  if (props.mediaData.providerType === 'sonarr') return '/data/media/tv'
+  return '/data/media'
 })
 
 const folderName = computed(() => {
@@ -263,17 +268,18 @@ const loadOptions = async () => {
 
     const baseUrl = serviceConfig.url.replace(/\/$/, '')
     const apiKey = serviceConfig.api_key
+    const apiVersion = props.mediaData.providerType === 'readarr' ? 'v1' : 'v3'
 
-    // Load quality profiles and root folders in parallel
+    // Load quality profiles and root folders in parallel (use correct API version)
     const [qualityResponse, rootFolderResponse] = await Promise.all([
-      fetch(`${baseUrl}/api/v3/qualityprofile`, {
+      fetch(`${baseUrl}/api/${apiVersion}/qualityprofile`, {
         headers: {
           'X-Api-Key': apiKey,
           'Content-Type': 'application/json',
         },
         mode: 'cors',
       }),
-      fetch(`${baseUrl}/api/v3/rootfolder`, {
+      fetch(`${baseUrl}/api/${apiVersion}/rootfolder`, {
         headers: {
           'X-Api-Key': apiKey,
           'Content-Type': 'application/json',
@@ -285,19 +291,18 @@ const loadOptions = async () => {
     if (qualityResponse.ok) {
       qualityProfiles.value = await qualityResponse.json()
 
-      // Set default quality profile
-      const defaultProfile =
-        props.mediaData.providerType === 'sonarr'
-          ? qualityProfiles.value.find(
-              (p) => p.name.includes('HD-1080p') || p.name.includes('1080p'),
-            )
-          : qualityProfiles.value.find((p) => p.name.includes('Ultra-HD') || p.name.includes('4K'))
-
-      if (defaultProfile) {
-        formData.value.qualityProfileId = defaultProfile.id
-      } else if (qualityProfiles.value.length > 0) {
-        formData.value.qualityProfileId = qualityProfiles.value[0].id
+      // Set default quality profile (prefer provider default flag or reasonable heuristic)
+      let defaultProfile = qualityProfiles.value.find((p) => p.default === true)
+      if (!defaultProfile) {
+        if (props.mediaData.providerType === 'sonarr') {
+          defaultProfile = qualityProfiles.value.find((p) => /1080p|HD-1080p/i.test(p.name || ''))
+        } else if (props.mediaData.providerType === 'radarr') {
+          defaultProfile = qualityProfiles.value.find((p) => /4K|Ultra[- ]HD/i.test(p.name || ''))
+        } else if (props.mediaData.providerType === 'readarr') {
+          defaultProfile = qualityProfiles.value[0]
+        }
       }
+      formData.value.qualityProfileId = (defaultProfile || qualityProfiles.value[0] || {}).id || ''
     }
 
     if (rootFolderResponse.ok) {
@@ -322,7 +327,9 @@ const handleAdd = async () => {
     const baseUrl = serviceConfig.url.replace(/\/$/, '')
     const apiKey = serviceConfig.api_key
 
-    const endpoint = props.mediaData.providerType === 'sonarr' ? '/api/v3/series' : '/api/v3/movie'
+    let endpoint = '/api/v3/movie'
+    if (props.mediaData.providerType === 'sonarr') endpoint = '/api/v3/series'
+    if (props.mediaData.providerType === 'readarr') endpoint = '/api/v1/book'
 
     // Prepare payload (spread source data first, then enforce required fields)
     const payload = {
@@ -352,6 +359,14 @@ const handleAdd = async () => {
     if (props.mediaData.providerType === 'radarr') {
       payload.minimumAvailability = 'released'
       payload.monitored = true
+    }
+
+    // Add Readarr-specific fields
+    if (props.mediaData.providerType === 'readarr') {
+      payload.qualityProfileId = Number(formData.value.qualityProfileId)
+      payload.rootFolderPath = rootFolderPath.value
+      payload.monitored = true
+      payload.addOptions = { searchForMissingBooks: true }
     }
 
     const response = await fetch(`${baseUrl}${endpoint}`, {
