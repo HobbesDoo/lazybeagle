@@ -35,6 +35,57 @@ links:
     icon: 'asset:svg:realtor'
     enabled: true
 
+  - type: 'LINK'
+    name: 'NAS'
+    url: 'https://bob.themysterymachine.net'
+    description: 'NAS'
+    icon: 'lucide:network'
+    enabled: true
+
+  - type: 'LINK'
+    name: 'Home Assisttant'
+    url: 'https://homeassistant.themysterymachine.net'
+    description: 'Home Assistant'
+    icon: 'lucide:home-assistant'
+    enabled: true
+
+  - type: 'GROUP'
+    name: 'Books'
+    description: 'Books'
+    icon: 'lucide:book-open'
+    enabled: true
+    links:
+      - type: 'LINK'
+        name: 'Readarr'
+        url: 'https://readarr.themysterymachine.net'
+        description: 'Books'
+        icon: 'lucide:book-open'
+        enabled: true
+      - type: 'LINK'
+        name: 'komga'
+        url: 'https://komga.themysterymachine.net'
+        description: 'Comics'
+        icon: 'lucide:book-open'
+        enabled: true
+      - type: 'LINK'
+        name: 'calibre-web'
+        url: 'https://calibre-web.themysterymachine.net'
+        description: 'Ebooks'
+        icon: 'lucide:book-open'
+        enabled: true
+      - type: 'LINK'
+        name: 'Calibre'
+        url: 'https://calibre.themysterymachine.net'
+        description: 'Ebooks'
+        icon: 'lucide:book-open'
+        enabled: true
+      - type: 'LINK'
+        name: 'Mylar3'
+        url: 'https://mylar.themysterymachine.net'
+        description: 'Ebooks'
+        icon: 'lucide:book-open'
+        enabled: true
+
   # Network Services
   - type: 'GROUP'
     name: 'Network'

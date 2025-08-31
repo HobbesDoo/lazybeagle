@@ -313,6 +313,8 @@ onUnmounted(() => {
       <WebLinkCard
         :grid-width="layout.links?.width || 4"
         :grid-height="layout.links?.height || 4"
+        :grid-column-start="layout.links?.col || null"
+        :grid-row-start="layout.links?.row || null"
         :links="
           enabledLinks.map((l) => ({
             name: l.name,

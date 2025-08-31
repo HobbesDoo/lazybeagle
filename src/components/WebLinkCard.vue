@@ -15,12 +15,11 @@
     :clickable="!(links && links.length)"
     :bordered="true"
     :shadow="true"
+    :frameless="true"
+    :content-align="'center'"
+    :content-v-align="'middle'"
     @click="handleClick"
-    :style="{
-      '--card-background': 'rgba(255, 255, 255, 0.10)',
-      '--card-border-color': 'rgba(255, 255, 255, 0.20)',
-      '--card-shadow': 'none',
-    }"
+    :style="{}"
   >
     <!-- Container mode: render multiple links if provided -->
     <div v-if="links && links.length" class="links-grid" @click.stop>
@@ -284,13 +283,15 @@ const handleItemClick = (evt, item, index) => {
 <style scoped>
 .links-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(90px, 110px));
   gap: 12px;
   padding: 8px;
   width: 100%;
   height: 100%;
   overflow: hidden; /* hide overflow for now */
-  align-content: flex-start;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
 }
 
 .link-item {

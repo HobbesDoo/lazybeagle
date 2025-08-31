@@ -116,6 +116,26 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+
+  /**
+   * Horizontal alignment of content inside the card body
+   * one of: 'left' | 'center' | 'right' | 'stretch'
+   */
+  contentAlign: {
+    type: String,
+    default: 'stretch',
+    validator: (v) => ['left', 'center', 'right', 'stretch'].includes(v),
+  },
+
+  /**
+   * Vertical alignment of content inside the card body
+   * one of: 'top' | 'middle' | 'bottom' | 'space-between'
+   */
+  contentVAlign: {
+    type: String,
+    default: 'top',
+    validator: (v) => ['top', 'middle', 'bottom', 'space-between'].includes(v),
+  },
 })
 
 const emit = defineEmits(['click'])
@@ -147,12 +167,28 @@ const cardStyle = computed(() => {
   if (props.frameless) {
     style['--card-background'] = 'transparent'
   }
-  style.gridColumn = props.gridColumnStart
-    ? `${props.gridColumnStart} / span ${props.gridWidth}`
-    : `span ${props.gridWidth}`
-  style.gridRow = props.gridRowStart
-    ? `${props.gridRowStart} / span ${props.gridHeight}`
-    : `span ${props.gridHeight}`
+  // Content alignment variables used by .card-content
+  const alignMap = { left: 'flex-start', center: 'center', right: 'flex-end', stretch: 'stretch' }
+  const vAlignMap = {
+    top: 'flex-start',
+    middle: 'center',
+    bottom: 'flex-end',
+    'space-between': 'space-between',
+  }
+  style['--card-content-align-items'] = alignMap[props.contentAlign]
+  style['--card-content-justify-content'] = vAlignMap[props.contentVAlign]
+  if (props.gridColumnStart) {
+    style.gridColumnStart = String(props.gridColumnStart)
+    style.gridColumnEnd = `span ${props.gridWidth}`
+  } else {
+    style.gridColumn = `span ${props.gridWidth}`
+  }
+  if (props.gridRowStart) {
+    style.gridRowStart = String(props.gridRowStart)
+    style.gridRowEnd = `span ${props.gridHeight}`
+  } else {
+    style.gridRow = `span ${props.gridHeight}`
+  }
   return style
 })
 
@@ -168,9 +204,7 @@ const handleClick = () => {
 
 <style scoped>
 .base-card {
-  /* Grid positioning */
-  grid-column: span var(--card-grid-width, 1);
-  grid-row: span var(--card-grid-height, 1);
+  /* Grid positioning handled via inline styles for precise placement */
 
   /* Layout */
   display: flex;
@@ -233,6 +267,8 @@ const handleClick = () => {
   padding: var(--card-content-padding, 16px);
   display: flex;
   flex-direction: column;
+  align-items: var(--card-content-align-items, stretch);
+  justify-content: var(--card-content-justify-content, flex-start);
 }
 
 .card-footer {
