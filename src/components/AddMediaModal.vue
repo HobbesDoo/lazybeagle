@@ -383,18 +383,62 @@ const handleAdd = async () => {
         props.mediaData.author?.name ||
         props.mediaData.authorName ||
         'Unknown Author'
-      const foreignAuthorId =
+      let foreignAuthorId =
         props.mediaData.author?.foreignAuthorId || props.mediaData.foreignAuthorId || null
 
-      payload = {
-        authorName,
-        foreignAuthorId: foreignAuthorId || undefined,
-        qualityProfileId: Number(formData.value.qualityProfileId),
-        metadataProfileId: rootFolder.value?.defaultMetadataProfileId || 1,
-        rootFolderPath: rootFolderPath.value,
-        monitored: true,
-        addOptions: { searchForMissingBooks: true },
+      let authorPayload = null
+
+      // If missing foreignAuthorId, resolve via author lookup
+      if (!foreignAuthorId) {
+        try {
+          const term = authorName || props.mediaData.title
+          const lookupRes = await fetch(
+            `${baseUrl}/api/v1/author/lookup?term=${encodeURIComponent(term)}`,
+            {
+              headers: { 'X-Api-Key': apiKey },
+              mode: 'cors',
+            },
+          )
+          if (lookupRes.ok) {
+            const authors = await lookupRes.json()
+            const termLower = (term || '').toLowerCase()
+            const match =
+              authors.find((a) =>
+                (a.authorName || a.name || '').toLowerCase().includes(termLower),
+              ) || authors[0]
+            if (match && (match.foreignAuthorId || match.id)) {
+              foreignAuthorId = match.foreignAuthorId || match.id
+              authorPayload = {
+                ...match,
+                qualityProfileId: Number(formData.value.qualityProfileId),
+                metadataProfileId: rootFolder.value?.defaultMetadataProfileId || 1,
+                rootFolderPath: rootFolderPath.value,
+                monitored: true,
+                addOptions: { monitor: 'all', searchForMissingBooks: true },
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Readarr author lookup failed:', e)
+        }
       }
+
+      if (!authorPayload) {
+        if (!foreignAuthorId) {
+          throw new Error('Readarr: Missing foreignAuthorId for author')
+        }
+        authorPayload = {
+          authorName,
+          foreignAuthorId,
+          qualityProfileId: Number(formData.value.qualityProfileId),
+          metadataProfileId: rootFolder.value?.defaultMetadataProfileId || 1,
+          rootFolderPath: rootFolderPath.value,
+          monitored: true,
+          addOptions: { monitor: 'all', searchForMissingBooks: true },
+        }
+      }
+
+      payload = authorPayload
     }
 
     const response = await fetch(`${baseUrl}${endpoint}`, {
