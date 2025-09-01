@@ -29,7 +29,8 @@ links:
     enabled: true
 
   - type: 'APP'
-    name: 'NZBGet'
+    name: 'Queue'
+    description: 'Download Queue'
     icon: 'lucide:download'
     enabled: true
     provider: 'nzbget'
