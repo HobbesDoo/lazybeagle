@@ -1,0 +1,140 @@
+<template>
+  <teleport to="body">
+    <div v-if="isOpen" class="app-overlay" @click.self="close">
+      <div class="app-panel" :style="panelStyle" ref="panelRef" role="dialog" aria-modal="true">
+        <header class="app-header">
+          <div class="app-title-row">
+            <IconRenderer v-if="icon" :icon="icon" :size="14" />
+            <div class="app-title">{{ title || providerLabel }}</div>
+          </div>
+          <button class="app-close" @click="close" aria-label="Close">×</button>
+        </header>
+        <div class="app-body">
+          <component :is="resolvedComponent" v-bind="providerProps" @close="close" />
+        </div>
+      </div>
+    </div>
+  </teleport>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import IconRenderer from './IconRenderer.vue'
+import { getProviderComponent } from '../providers/registry.js'
+
+const props = defineProps({
+  isOpen: { type: Boolean, default: false },
+  anchorRect: { type: Object, default: null },
+  title: { type: String, default: '' },
+  icon: { type: String, default: '' },
+  provider: { type: String, required: true },
+  providerProps: { type: Object, default: () => ({}) },
+})
+
+const emit = defineEmits(['close'])
+const panelRef = ref(null)
+
+const providerLabel = computed(() => (props.provider || '').toString())
+
+const resolvedComponent = computed(() => getProviderComponent(props.provider))
+
+const panelStyle = computed(() => {
+  const rect = props.anchorRect
+  const margin = 6
+  const width = Math.min(window.innerWidth - 2 * margin, 520)
+  const maxCap = Math.min(window.innerHeight * 0.6, 420)
+  let top = 80
+  let maxHeight = maxCap
+  let transform = 'translateY(0)'
+
+  if (rect) {
+    const spaceBelow = window.innerHeight - rect.bottom - margin
+    const spaceAbove = rect.top - margin
+    const showBelow = spaceBelow >= spaceAbove
+
+    if (showBelow) {
+      top = rect.bottom + margin
+      maxHeight = Math.min(maxCap, Math.max(160, spaceBelow))
+      transform = 'translateY(0)'
+    } else {
+      top = rect.top - margin
+      maxHeight = Math.min(maxCap, Math.max(160, spaceAbove))
+      transform = 'translateY(-100%)'
+    }
+  }
+
+  const left = Math.min(rect ? rect.left : margin, window.innerWidth - width - margin)
+  return {
+    top: `${Math.max(margin, top)}px`,
+    left: `${Math.max(margin, left)}px`,
+    width: `${width}px`,
+    maxHeight: `${maxHeight}px`,
+    transform,
+  }
+})
+
+const onKey = (e) => {
+  if (e.key === 'Escape') emit('close')
+}
+
+const close = () => emit('close')
+
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKey)
+})
+</script>
+
+<style scoped>
+.app-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+}
+
+.app-panel {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  color: #fff;
+  overflow: hidden;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+.app-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.app-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.app-close {
+  background: transparent;
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.app-body {
+  display: block;
+  padding: 8px;
+  max-height: 60vh;
+  overflow: auto;
+}
+</style>

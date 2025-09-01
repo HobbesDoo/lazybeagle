@@ -72,18 +72,29 @@
       <div class="app-name">{{ serviceName }}</div>
     </div>
   </BaseCard>
-  <LinkGroupPanel
-    v-for="(p, i) in panels"
-    :key="i"
-    :is-open="true"
-    :anchor-rect="p.anchorRect"
-    :links="p.links"
-    :open-in-new-tab="openInNewTab"
-    :title="p.title"
-    :icon="p.icon"
-    @close="closePanelAt(i)"
-    @openGroup="handlePanelOpenGroup(i, $event)"
-  />
+  <template v-for="(p, i) in panels" :key="i">
+    <AppProviderPanel
+      v-if="p.kind === 'app'"
+      :is-open="true"
+      :anchor-rect="p.anchorRect"
+      :title="p.title"
+      :icon="p.icon"
+      :provider="p.provider"
+      :provider-props="p.props"
+      @close="closePanelAt(i)"
+    />
+    <LinkGroupPanel
+      v-else
+      :is-open="true"
+      :anchor-rect="p.anchorRect"
+      :links="p.links"
+      :open-in-new-tab="openInNewTab"
+      :title="p.title"
+      :icon="p.icon"
+      @close="closePanelAt(i)"
+      @openGroup="handlePanelOpenGroup(i, $event)"
+    />
+  </template>
 </template>
 
 <script setup>
@@ -91,6 +102,7 @@ import { computed } from 'vue'
 import IconRenderer from './IconRenderer.vue'
 import BaseCard from './BaseCard.vue'
 import LinkGroupPanel from './LinkGroupPanel.vue'
+import AppProviderPanel from './AppProviderPanel.vue'
 
 const props = defineProps({
   /**
@@ -248,6 +260,9 @@ const normalizedLinks = computed(() => {
       iconUrl: l.iconUrl || l.icon_url || '',
       type: (l.type || 'LINK').toUpperCase(),
       links: l.links || [],
+      provider: l.provider || l.app || '',
+      providerProps: l.props || l.providerProps || {},
+      panel: l.panel || {},
     }))
 })
 
@@ -264,6 +279,7 @@ const openLink = (url) => {
 import { ref } from 'vue'
 const panels = ref([])
 const openGroupIndex = ref(-1) // track top-level open group for indicator state
+const isPanelOpen = computed(() => panels.value.length > 0)
 
 const normalizeChildren = (items = []) => {
   return (items || [])
@@ -305,7 +321,8 @@ const handlePanelOpenGroup = (parentIndex, payload) => {
 }
 
 const handleItemClick = (evt, item, index) => {
-  if ((item.type || 'LINK') === 'GROUP') {
+  const itemType = item.type || 'LINK'
+  if (itemType === 'GROUP') {
     const rect = evt.currentTarget.getBoundingClientRect()
     pushPanel({
       anchorRect: rect,
@@ -314,6 +331,16 @@ const handleItemClick = (evt, item, index) => {
       icon: item.icon || '',
     })
     openGroupIndex.value = index
+  } else if (itemType === 'APP') {
+    const rect = evt.currentTarget.getBoundingClientRect()
+    pushPanel({
+      kind: 'app',
+      anchorRect: rect,
+      provider: item.provider,
+      props: item.providerProps || {},
+      title: item.name,
+      icon: item.icon || '',
+    })
   } else {
     openLink(item.url)
   }
