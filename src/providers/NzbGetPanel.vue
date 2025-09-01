@@ -154,7 +154,7 @@ const fetchQueue = async () => {
 
     const data = await sendRpc('listgroups', [])
     items.value = Array.isArray(data?.result) ? data.result : []
-    console.log('[NzbGetPanel] queue items', items.value.length)
+    console.log('[NzbGetPanel] queue items', items.value)
   } catch (e) {
     error.value = e.message || String(e)
     console.error('[NzbGetPanel] error', e)
