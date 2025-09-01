@@ -18,7 +18,14 @@
           <div class="th">Left</div>
           <div class="th">Est. Time</div>
         </div>
-        <div v-for="row in rows" :key="row.id" class="tr">
+        <div
+          v-for="row in rows"
+          :key="row.id"
+          class="tr"
+          @click="toggleItem(row.raw)"
+          :title="row.statusLabel === 'PAUSED' ? 'Resume' : 'Pause'"
+          style="cursor: pointer"
+        >
           <div class="td">
             <span class="status-badge" :class="statusClass(row.status)">{{ row.statusLabel }}</span>
           </div>
@@ -117,44 +124,41 @@ const rows = computed(() => {
       left: formatSize(leftMB),
       eta: eta ? eta.toString() : '-',
       progress,
+      raw: it,
     }
   })
 })
+
+const getConnection = () => {
+  const svc = configService.getServiceByType('nzbget') || {}
+  const base = (props.baseUrl || svc.url || '').replace(/\/$/, '')
+  const user = props.username || svc.username || svc.user || ''
+  const pass = props.password || svc.password || ''
+  const rpcPath = props.rpcPath || svc.rpc_path || '/jsonrpc'
+  if (!base) throw new Error('NZBGet service not configured')
+  const headers = { 'Content-Type': 'application/json' }
+  if (user || pass) headers['Authorization'] = 'Basic ' + btoa(`${user}:${pass}`)
+  return { base, rpcPath, headers }
+}
+
+const sendRpc = async (method, params) => {
+  const { base, rpcPath, headers } = getConnection()
+  const res = await fetch(`${base}${rpcPath}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ method, params }),
+    mode: 'cors',
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
 
 const fetchQueue = async () => {
   try {
     loading.value = true
     error.value = ''
 
-    // Expect NZBGet defined in services.yaml (or overridden via props)
-    const svc = configService.getServiceByType('nzbget') || {}
-    const base = (props.baseUrl || svc.url || '').replace(/\/$/, '')
-    const user = props.username || svc.username || svc.user || ''
-    const pass = props.password || svc.password || ''
-    const rpcPath = props.rpcPath || svc.rpc_path || '/jsonrpc'
-
-    if (!base) throw new Error('NZBGet service not configured')
-    console.log('[NzbGetPanel] resolved connection', {
-      base,
-      user: user ? '***' : '',
-      rpcPath,
-    })
-
-    // Build headers (Basic Auth if user/pass provided)
-    const headers = { 'Content-Type': 'application/json' }
-    if (user || pass) {
-      headers['Authorization'] = 'Basic ' + btoa(`${user}:${pass}`)
-    }
-
-    // NZBGet JSON-RPC
-    const res = await fetch(`${base}${rpcPath}`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ method: 'listgroups', params: [] }),
-      mode: 'cors',
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
+    const data = await sendRpc('listgroups', [])
     items.value = Array.isArray(data?.result) ? data.result : []
     console.log('[NzbGetPanel] queue items', items.value.length)
   } catch (e) {
@@ -162,6 +166,20 @@ const fetchQueue = async () => {
     console.error('[NzbGetPanel] error', e)
   } finally {
     loading.value = false
+  }
+}
+
+const toggleItem = async (raw) => {
+  try {
+    const id = raw?.NZBID || raw?.NzbId || raw?.NZBId
+    if (!id) return
+    const status = String(raw?.Status || '').toUpperCase()
+    const action = status.includes('PAUSE') ? 'GroupResume' : 'GroupPause'
+    console.log('[NzbGetPanel] toggle', { id, status, action })
+    await sendRpc('editqueue', [action, 0, [id]])
+    await fetchQueue()
+  } catch (e) {
+    console.error('Failed to toggle NZBGet item:', e)
   }
 }
 
