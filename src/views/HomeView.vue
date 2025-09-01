@@ -326,6 +326,7 @@ onUnmounted(() => {
             links: l.links || [],
             provider: l.provider || l.app || '',
             props: l.props || l.providerProps || {},
+            panel: l.panel || {},
           }))
         "
       />
