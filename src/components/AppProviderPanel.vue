@@ -5,7 +5,7 @@
         <header class="app-header">
           <div class="app-title-row">
             <IconRenderer v-if="icon" :icon="icon" :size="14" />
-            <div class="app-title">{{ description || providerLabel }}</div>
+            <div class="app-title">{{ effectiveTitle }}</div>
           </div>
           <button class="app-close" @click="close" aria-label="Close">×</button>
         </header>
@@ -37,6 +37,7 @@ const props = defineProps({
   icon: { type: String, default: '' },
   provider: { type: String, required: true },
   providerProps: { type: Object, default: () => ({}) },
+  panel: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['close'])
@@ -59,11 +60,22 @@ const providerPropsWithService = computed(() => {
   return merged
 })
 
+const effectiveTitle = computed(() => {
+  return props.providerProps?.description || props.title || providerLabel.value
+})
+
 const panelStyle = computed(() => {
   const rect = props.anchorRect
   const margin = 6
-  const width = Math.min(window.innerWidth - 2 * margin, 520)
-  const maxCap = Math.min(window.innerHeight * 0.6, 420)
+  const widthOverride = Number(props.panel?.width) || null
+  const maxHeightOverride = Number(props.panel?.maxHeight) || null
+  const width = widthOverride
+    ? Math.min(window.innerWidth - 2 * margin, widthOverride)
+    : Math.min(window.innerWidth - 2 * margin, 520)
+  const maxCapDefault = Math.min(window.innerHeight * 0.6, 420)
+  const maxCap = maxHeightOverride
+    ? Math.min(window.innerHeight - 2 * margin, maxHeightOverride)
+    : maxCapDefault
   let top = 80
   let maxHeight = maxCap
   let transform = 'translateY(0)'

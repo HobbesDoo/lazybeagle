@@ -77,10 +77,11 @@
       v-if="p.kind === 'app'"
       :is-open="true"
       :anchor-rect="p.anchorRect"
-      :title="p.description"
+      :title="p.title"
       :icon="p.icon"
       :provider="p.provider"
       :provider-props="p.props"
+      :panel="p.panel"
       @close="closePanelAt(i)"
     />
     <LinkGroupPanel
@@ -342,6 +343,7 @@ const handlePanelOpenApp = (parentIndex, payload) => {
     props: payload.props || {},
     title: payload.title,
     icon: payload.icon,
+    panel: payload.panel || {},
   })
 }
 
@@ -354,6 +356,7 @@ const handleItemClick = (evt, item, index) => {
       links: normalizeChildren(item.links || []),
       title: item.name,
       icon: item.icon || '',
+      panel: item.panel || {},
     })
     openGroupIndex.value = index
   } else if (itemType === 'APP') {

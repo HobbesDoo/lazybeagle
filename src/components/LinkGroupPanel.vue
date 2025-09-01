@@ -145,6 +145,7 @@ const handleItemClick = (evt, link) => {
       links: normalizeChildren(link.links || []),
       title: link.name,
       icon: link.icon || '',
+      panel: link.panel || {},
     })
   } else if (type === 'APP') {
     const rect = evt.currentTarget.getBoundingClientRect()
@@ -154,6 +155,7 @@ const handleItemClick = (evt, link) => {
       props: link.providerProps || {},
       title: link.name,
       icon: link.icon || '',
+      panel: link.panel || {},
     })
   } else {
     open(link)
