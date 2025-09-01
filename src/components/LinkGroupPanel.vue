@@ -59,6 +59,7 @@ const props = defineProps({
   openInNewTab: { type: Boolean, default: true },
   title: { type: String, default: '' },
   icon: { type: String, default: '' },
+  panel: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['close', 'openGroup', 'openApp'])
@@ -67,8 +68,15 @@ const panelRef = ref(null)
 const panelStyle = computed(() => {
   const rect = props.anchorRect
   const margin = 6
-  const width = Math.min(window.innerWidth - 2 * margin, 520)
-  const maxCap = Math.min(window.innerHeight * 0.6, 420)
+  const widthOverride = Number(props.panel?.width) || null
+  const maxHeightOverride = Number(props.panel?.maxHeight) || null
+  const width = widthOverride
+    ? Math.min(window.innerWidth - 2 * margin, widthOverride)
+    : Math.min(window.innerWidth - 2 * margin, 520)
+  const maxCapDefault = Math.min(window.innerHeight * 0.6, 420)
+  const maxCap = maxHeightOverride
+    ? Math.min(window.innerHeight - 2 * margin, maxHeightOverride)
+    : maxCapDefault
   let top = 80
   let maxHeight = maxCap
   let transform = 'translateY(0)'

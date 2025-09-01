@@ -92,6 +92,7 @@
       :open-in-new-tab="openInNewTab"
       :title="p.title"
       :icon="p.icon"
+      :panel="p.panel"
       @close="closePanelAt(i)"
       @openGroup="handlePanelOpenGroup(i, $event)"
       @openApp="handlePanelOpenApp(i, $event)"
