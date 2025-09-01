@@ -181,6 +181,7 @@ links:
         name: 'Open AI'
         url: 'https://platform.openai.com/docs/overview'
         description: 'Open AI API Platform'
+        icon: 'asset:svg:openai'
         enabled: true
       - type: 'LINK'
         name: 'Apple Developer'
