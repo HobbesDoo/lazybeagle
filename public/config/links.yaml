@@ -37,8 +37,8 @@ links:
     props:
       pollInterval: 10000
     panel:
-      width: 1440
-      maxHeight: 560
+      gridWidth: 6
+      gridHeight: 3
 
   - type: 'GROUP'
     name: 'Downloads'

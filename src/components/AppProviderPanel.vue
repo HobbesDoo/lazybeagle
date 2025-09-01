@@ -67,15 +67,29 @@ const effectiveTitle = computed(() => {
 const panelStyle = computed(() => {
   const rect = props.anchorRect
   const margin = 6
-  const widthOverride = Number(props.panel?.width) || null
-  const maxHeightOverride = Number(props.panel?.maxHeight) || null
-  const width = widthOverride
-    ? Math.min(window.innerWidth - 2 * margin, widthOverride)
-    : Math.min(window.innerWidth - 2 * margin, 520)
-  const maxCapDefault = Math.min(window.innerHeight * 0.6, 420)
-  const maxCap = maxHeightOverride
-    ? Math.min(window.innerHeight - 2 * margin, maxHeightOverride)
-    : maxCapDefault
+  const grid = configService.get('dashboard.grid') || { columns: 6, rows: 4, gap: 16, padding: 24 }
+  const columns = Number(grid.columns) || 6
+  const rows = Number(grid.rows) || 4
+  const gap = Number(grid.gap) || 16
+  const padding = Number(grid.padding) || 24
+
+  // Support grid units for panel sizing
+  const gw = Number(props.panel?.gridWidth) || null
+  const gh = Number(props.panel?.gridHeight) || null
+  const availableW = window.innerWidth - padding * 2
+  const availableH = window.innerHeight - padding * 2
+  const colWidth = (availableW - gap * (columns - 1)) / columns
+  const rowHeight = (availableH - gap * (rows - 1)) / rows
+  const desiredWidth = gw ? Math.max(colWidth * gw + gap * (gw - 1), 320) : null
+  const desiredMaxHeight = gh ? Math.max(rowHeight * gh + gap * (gh - 1), 200) : null
+
+  const widthOverridePx = Number(props.panel?.width) || null
+  const maxHeightOverridePx = Number(props.panel?.maxHeight) || null
+
+  const baseWidth = desiredWidth || widthOverridePx || 520
+  const baseMax = desiredMaxHeight || maxHeightOverridePx || Math.min(window.innerHeight * 0.6, 420)
+  const width = Math.min(window.innerWidth - 2 * margin, baseWidth)
+  const maxCap = Math.min(window.innerHeight - 2 * margin, baseMax)
   let top = 80
   let maxHeight = maxCap
   let transform = 'translateY(0)'
