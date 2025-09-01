@@ -11,7 +11,11 @@
       <!-- Header -->
       <div class="popup-header">
         <div class="header-info">
-          <span class="provider-icon">{{ searchData.provider?.icon }}</span>
+          <IconRenderer
+            v-if="searchData.provider?.icon"
+            :icon="searchData.provider.icon"
+            :size="28"
+          />
           <div class="header-text">
             <h2 class="popup-title">{{ searchData.provider?.name }} Search</h2>
             <p class="search-query">"{{ searchData.query }}"</p>
@@ -86,7 +90,8 @@
 </template>
 
 <script setup>
-import { ref, watch, defineEmits } from 'vue'
+import { watch, defineEmits } from 'vue'
+import IconRenderer from './IconRenderer.vue'
 import MediaResultCard from './MediaResultCard.vue'
 
 // Props
