@@ -2,7 +2,7 @@
   <teleport to="body">
     <div v-if="isOpen" class="app-overlay" @click.self="close">
       <div class="app-panel" :style="panelStyle" ref="panelRef" role="dialog" aria-modal="true">
-        <header class="app-header">
+        <header class="app-header" ref="headerRef">
           <div class="app-title-row">
             <IconRenderer v-if="icon" :icon="icon" :size="14" />
             <div class="app-title">{{ effectiveTitle }}</div>
@@ -82,6 +82,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 const panelRef = ref(null)
+const headerRef = ref(null)
 const bodyRef = ref(null)
 
 const providerLabel = computed(() => (props.provider || '').toString())
@@ -189,6 +190,7 @@ const panelStyle = computed(() => {
     maxWidth: `${width}px`,
     maxHeight: `${maxHeight}px`,
     transform,
+    '--panel-max-height': `${maxHeight}px`,
   }
 })
 
@@ -198,6 +200,14 @@ const onKey = (e) => {
 
 const close = () => emit('close')
 
+const setHeaderHeightVar = () => {
+  const panelEl = panelRef.value
+  const headerEl = headerRef.value
+  if (!panelEl || !headerEl) return
+  const h = Math.ceil(headerEl.getBoundingClientRect().height)
+  panelEl.style.setProperty('--panel-header-height', `${h}px`)
+}
+
 onMounted(() => {
   console.log('[AppProviderPanel] mounted', {
     provider: props.provider,
@@ -206,10 +216,13 @@ onMounted(() => {
   })
   window.addEventListener('keydown', onKey)
   nextTick(updateScrollState)
+  nextTick(setHeaderHeightVar)
+  window.addEventListener('resize', setHeaderHeightVar)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onKey)
+  window.removeEventListener('resize', setHeaderHeightVar)
 })
 
 watch(
@@ -297,8 +310,10 @@ const scrollBy = (dir) => {
 .app-body {
   display: block;
   padding: 8px;
-  max-height: 60vh;
+  /* Fill remaining height under header to ensure scroll area exists on iPad */
+  max-height: calc(var(--panel-max-height, 60vh) - var(--panel-header-height, 40px));
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
 }
