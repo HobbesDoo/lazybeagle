@@ -46,17 +46,23 @@ links:
         description: 'Download Indexers'
         icon: 'asset:svg:prowlarr'
         enabled: true
-      - type: 'LINK'
-        name: 'NZB Geek'
-        url: 'https://nzbgeek.net'
-        description: 'NZB Search'
-        icon: 'asset:png:nzbgeek'
+      - type: 'GROUP'
+        name: 'Search Engines'
+        description: 'Search Engines'
+        icon: 'lucide:search'
         enabled: true
-      - type: 'LINK'
-        name: 'NZB Planet'
-        url: 'https://nzbplanet.net'
-        description: 'NZB Search'
-        enabled: true
+        links:
+          - type: 'LINK'
+            name: 'NZB Geek'
+            url: 'https://nzbgeek.net'
+            description: 'NZB Search'
+            icon: 'asset:png:nzbgeek'
+            enabled: true
+          - type: 'LINK'
+            name: 'NZB Planet'
+            url: 'https://nzbplanet.net'
+            description: 'NZB Search'
+            enabled: true
 
   - type: 'GROUP'
     name: 'Shopping'
