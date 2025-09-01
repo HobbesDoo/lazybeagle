@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import IconRenderer from './IconRenderer.vue'
 import { getProviderComponent } from '../providers/registry.js'
 
@@ -80,12 +80,24 @@ const onKey = (e) => {
 const close = () => emit('close')
 
 onMounted(() => {
+  console.log('[AppProviderPanel] mounted', {
+    provider: props.provider,
+    providerProps: props.providerProps,
+    anchorRect: props.anchorRect,
+  })
   window.addEventListener('keydown', onKey)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onKey)
 })
+
+watch(
+  () => props.provider,
+  (p) => {
+    console.log('[AppProviderPanel] provider changed →', p)
+  },
+)
 </script>
 
 <style scoped>

@@ -56,6 +56,11 @@ const fetchQueue = async () => {
     const rpcPath = props.rpcPath || svc.rpc_path || '/jsonrpc'
 
     if (!base) throw new Error('NZBGet service not configured')
+    console.log('[NzbGetPanel] resolved connection', {
+      base,
+      user: user ? '***' : '',
+      rpcPath,
+    })
 
     // Build headers (Basic Auth if user/pass provided)
     const headers = { 'Content-Type': 'application/json' }
@@ -73,14 +78,22 @@ const fetchQueue = async () => {
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
     items.value = Array.isArray(data?.result) ? data.result : []
+    console.log('[NzbGetPanel] queue items', items.value.length)
   } catch (e) {
     error.value = e.message || String(e)
+    console.error('[NzbGetPanel] error', e)
   } finally {
     loading.value = false
   }
 }
 
 onMounted(() => {
+  console.log('[NzbGetPanel] mounted with props', {
+    baseUrl: props.baseUrl,
+    username: props.username ? '***' : '',
+    rpcPath: props.rpcPath,
+    pollInterval: props.pollInterval,
+  })
   fetchQueue()
   if (props.pollInterval > 0) {
     timer = setInterval(fetchQueue, props.pollInterval)
