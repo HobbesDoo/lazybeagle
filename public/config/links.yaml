@@ -38,7 +38,7 @@ links:
       pollInterval: 10000
     panel:
       gridWidth: 6
-      gridHeight: 3
+      gridHeight: 6
 
   - type: 'GROUP'
     name: 'Downloads'
