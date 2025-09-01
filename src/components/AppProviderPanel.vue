@@ -5,7 +5,7 @@
         <header class="app-header">
           <div class="app-title-row">
             <IconRenderer v-if="icon" :icon="icon" :size="14" />
-            <div class="app-title">{{ title || providerLabel }}</div>
+            <div class="app-title">{{ description || providerLabel }}</div>
           </div>
           <button class="app-close" @click="close" aria-label="Close">×</button>
         </header>
