@@ -76,8 +76,19 @@ const panelStyle = computed(() => {
   const padding = Number(grid.padding) || 24
 
   // Compute ideal width/height from grid units if provided
-  const gw = Number(props.panel?.gridWidth) || null
-  const gh = Number(props.panel?.gridHeight) || null
+  const panelCfg = props.panel || {}
+  const gw =
+    panelCfg.gridWidth != null
+      ? Number(panelCfg.gridWidth)
+      : panelCfg.width != null && Number(panelCfg.width) <= columns
+        ? Number(panelCfg.width)
+        : null
+  const gh =
+    panelCfg.gridHeight != null
+      ? Number(panelCfg.gridHeight)
+      : panelCfg.height != null && Number(panelCfg.height) <= rows
+        ? Number(panelCfg.height)
+        : null
   const availableW = window.innerWidth - padding * 2
   const availableH = window.innerHeight - padding * 2
   const colWidth = (availableW - gap * (columns - 1)) / columns
@@ -85,8 +96,9 @@ const panelStyle = computed(() => {
   const desiredWidth = gw ? Math.max(colWidth * gw + gap * (gw - 1), 320) : null
   const desiredMaxHeight = gh ? Math.max(rowHeight * gh + gap * (gh - 1), 200) : null
 
-  const widthOverridePx = Number(props.panel?.width) || null
-  const maxHeightOverridePx = Number(props.panel?.maxHeight) || null
+  const widthOverridePx =
+    panelCfg.width != null && Number(panelCfg.width) > columns ? Number(panelCfg.width) : null
+  const maxHeightOverridePx = panelCfg.maxHeight != null ? Number(panelCfg.maxHeight) : null
 
   const baseWidth = desiredWidth || widthOverridePx || 520
   const baseMax = desiredMaxHeight || maxHeightOverridePx || Math.min(window.innerHeight * 0.6, 420)
