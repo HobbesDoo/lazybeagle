@@ -35,7 +35,6 @@ links:
     enabled: true
     provider: 'nzbget'
     props:
-      description: 'Current NZBGet queue'
       pollInterval: 10000
     panel:
       width: 1440
