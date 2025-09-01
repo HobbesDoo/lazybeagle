@@ -47,7 +47,7 @@ links:
         icon: 'asset:svg:prowlarr'
         enabled: true
       - type: 'GROUP'
-        name: 'Search Engines'
+        name: 'Search'
         description: 'Search Engines'
         icon: 'lucide:search'
         enabled: true
