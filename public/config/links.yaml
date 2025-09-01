@@ -54,7 +54,7 @@ links:
         links:
           - type: 'LINK'
             name: 'NZB Geek'
-            url: 'https://nzbgeek.net'
+            url: 'https://nzbgeek.info/dashboard.php'
             description: 'NZB Search'
             icon: 'asset:png:nzbgeek'
             enabled: true
