@@ -251,7 +251,10 @@ const handleClick = () => {
  */
 const normalizedLinks = computed(() => {
   return (props.links || [])
-    .filter((l) => l && l.name && (l.url || (l.type || 'LINK').toUpperCase() === 'GROUP'))
+    .filter((l) => {
+      const type = String(l?.type || 'LINK').toUpperCase()
+      return l && l.name && (l.url || type === 'GROUP' || type === 'APP')
+    })
     .map((l) => ({
       name: l.name,
       url: l.url,
@@ -283,7 +286,10 @@ const isPanelOpen = computed(() => panels.value.length > 0)
 
 const normalizeChildren = (items = []) => {
   return (items || [])
-    .filter((l) => l && l.name && (l.url || (l.type || 'LINK').toUpperCase() === 'GROUP'))
+    .filter((l) => {
+      const type = String(l?.type || 'LINK').toUpperCase()
+      return l && l.name && (l.url || type === 'GROUP' || type === 'APP')
+    })
     .map((l) => ({
       name: l.name,
       url: l.url,
@@ -292,6 +298,9 @@ const normalizeChildren = (items = []) => {
       iconUrl: l.iconUrl || l.icon_url || '',
       type: (l.type || 'LINK').toUpperCase(),
       links: l.links || [],
+      provider: l.provider || l.app || '',
+      providerProps: l.props || l.providerProps || {},
+      panel: l.panel || {},
     }))
 }
 

@@ -710,7 +710,7 @@ const resetScroll = () => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  width: var(--poster-item-width, 120px);
+  width: var(--poster-item-width, 100px);
 }
 
 .poster-container {
