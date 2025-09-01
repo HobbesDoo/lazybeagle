@@ -72,6 +72,12 @@ links:
         description: 'London Drugs'
         enabled: true
 
+      - type: 'LINK'
+        name: 'Save On Foods'
+        url: 'https://saveonfoods.com'
+        description: 'Save On Foods'
+        enabled: true
+
   - type: 'GROUP'
     name: 'Banking'
     description: 'Banking'
@@ -175,6 +181,11 @@ links:
         name: 'Open AI'
         url: 'https://platform.openai.com/docs/overview'
         description: 'Open AI API Platform'
+        enabled: true
+      - type: 'LINK'
+        name: 'Apple Developer'
+        url: 'https://developer.apple.com'
+        description: 'Apple Developer'
         enabled: true
 
   # Network Services
