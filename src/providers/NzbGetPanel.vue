@@ -171,32 +171,15 @@ const fetchQueue = async () => {
 
 const toggleItem = async (raw) => {
   try {
-    const id = raw?.NZBID || raw?.NzbId || raw?.NZBId
+    const id = raw?.LastID || raw?.NZBID || raw?.NzbId || raw?.NZBId
     if (!id) return
     const status = String(raw?.Status || '').toUpperCase()
     const action = status.includes('PAUSE') ? 'GroupResume' : 'GroupPause'
     console.log('[NzbGetPanel] toggle', { id, status, action })
-
-    // Try common JSON-RPC signatures used by NZBGet for editqueue
-    const attempts = [
-      [action, 0, id], // id as number/string
-      [action, 0, String(id)],
-      [action, 0, [id]], // id in array
-    ]
-    let ok = false
-    for (const params of attempts) {
-      try {
-        const res = await sendRpc('editqueue', params)
-        console.log('[NzbGetPanel] editqueue response', params, res)
-        if (res?.result === true) {
-          ok = true
-          break
-        }
-      } catch (e) {
-        console.warn('[NzbGetPanel] editqueue attempt failed', params, e)
-      }
-    }
-    if (!ok) console.warn('[NzbGetPanel] editqueue did not return success')
+    const params = [action, '', [Number(id)]]
+    const res = await sendRpc('editqueue', params)
+    console.log('[NzbGetPanel] editqueue response', params, res)
+    if (res?.result !== true) console.warn('[NzbGetPanel] editqueue did not return success')
     await fetchQueue()
   } catch (e) {
     console.error('Failed to toggle NZBGet item:', e)

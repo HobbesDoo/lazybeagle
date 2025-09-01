@@ -77,7 +77,7 @@
       v-if="p.kind === 'app'"
       :is-open="true"
       :anchor-rect="p.anchorRect"
-      :title="p.title"
+      :title="p.description"
       :icon="p.icon"
       :provider="p.provider"
       :provider-props="p.props"
