@@ -49,19 +49,19 @@ dashboard:
         height: 3
       upcoming_tv:
         col: 3
-        row: 7
+        row: 6
         width: 4
         height: 3
       upcoming_movies:
         col: 7
-        row: 7
+        row: 6
         width: 4
         height: 3
       links:
         col: 1
-        row: 10
+        row: 9
         width: 12
-        height: 2
+        height: 4
 
 # Theme Configuration
 themes:
