@@ -1,14 +1,15 @@
 // Provider registry for APP panels
-// Map provider key -> async component resolver
+// Map provider key -> async component using defineAsyncComponent
+import { defineAsyncComponent } from 'vue'
 
 export const providers = {
-  nzbget: () => import('./NzbGetPanel.vue'),
+  nzbget: defineAsyncComponent(() => import('./NzbGetPanel.vue')),
 }
 
 export function getProviderComponent(providerKey) {
   const key = String(providerKey || '').toLowerCase()
-  const resolver = providers[key]
-  return resolver ? resolver : MissingProvider
+  const comp = providers[key]
+  return comp || MissingProvider
 }
 
 const MissingProvider = {
