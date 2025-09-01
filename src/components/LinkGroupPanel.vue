@@ -104,6 +104,21 @@ const panelStyle = computed(() => {
   const baseMax = desiredMaxHeight || maxHeightOverridePx || Math.min(window.innerHeight * 0.6, 420)
   const width = Math.min(window.innerWidth - 2 * margin, baseWidth)
   const maxCap = Math.min(window.innerHeight - 2 * margin, baseMax)
+
+  try {
+    console.log('[LinkGroupPanel] sizing', {
+      panel: props.panel,
+      grid: { columns, rows, gap, padding },
+      computed: {
+        desiredWidth,
+        desiredMaxHeight,
+        widthOverridePx,
+        maxHeightOverridePx,
+        width,
+        maxCap,
+      },
+    })
+  } catch {}
   let top = 80
   let maxHeight = maxCap
   let transform = 'translateY(0)'
