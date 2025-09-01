@@ -11,7 +11,6 @@
           <div class="th">Category</div>
           <div class="th">Size</div>
           <div class="th">Left</div>
-          <div class="th">Est. Time</div>
         </div>
         <div
           v-for="row in rows"
@@ -28,7 +27,6 @@
           <div class="td">{{ row.category || '-' }}</div>
           <div class="td">{{ row.size }}</div>
           <div class="td">{{ row.left }}</div>
-          <div class="td">{{ row.eta }}</div>
           <div class="progress-row">
             <div
               class="progress-bar"
