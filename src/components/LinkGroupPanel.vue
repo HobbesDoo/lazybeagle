@@ -21,6 +21,24 @@
               <img v-if="link.iconUrl" :src="link.iconUrl" :alt="`${link.name} icon`" />
               <IconRenderer v-else-if="link.icon" :icon="link.icon" :size="22" />
               <IconRenderer v-else :url="link.url" :size="22" />
+              <div
+                v-if="(link.type || 'LINK') === 'GROUP'"
+                class="group-indicator inside"
+                aria-hidden="true"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
             </div>
             <div class="lgp-name">{{ link.name }}</div>
           </button>
@@ -244,5 +262,24 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Group chevron indicator to match top-level style */
+.group-indicator {
+  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.9);
+}
+.group-indicator.inside {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
