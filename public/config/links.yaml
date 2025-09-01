@@ -191,6 +191,24 @@ links:
 
   # Network Services
   - type: 'GROUP'
+    name: '3D Printing'
+    description: '3D Printing'
+    icon: 'lucide:printer'
+    enabled: true
+    links:
+      - type: 'LINK'
+        name: 'Bambu Labs'
+        url: 'https://bambulab.com'
+        description: 'Bambu Labs'
+        enabled: true
+      - type: 'LINK'
+        name: 'Thangs'
+        url: 'https://thangs.com'
+        description: 'Thangs'
+        enabled: true
+
+  # Network Services
+  - type: 'GROUP'
     name: 'Network'
     description: 'Network Services'
     icon: 'lucide:network'
