@@ -305,8 +305,8 @@ const normalizeChildren = (items = []) => {
     }))
 }
 
-const pushPanel = ({ anchorRect, links, title, icon }) => {
-  panels.value.push({ anchorRect, links, title, icon })
+const pushPanel = (panel) => {
+  panels.value.push(panel)
 }
 
 const closePanelAt = (index) => {
@@ -368,7 +368,10 @@ const handleItemClick = (evt, item, index) => {
       kind: 'app',
       anchorRect: rect,
       provider: item.provider,
-      props: item.providerProps || {},
+      props: {
+        ...(item.providerProps || {}),
+        baseUrl: undefined, // filled by provider from services unless overridden
+      },
       title: item.name,
       icon: item.icon || '',
     })

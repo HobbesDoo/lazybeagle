@@ -12,7 +12,7 @@
         <div class="app-body">
           <Suspense>
             <template #default>
-              <component :is="resolvedComponent" v-bind="providerProps" @close="close" />
+              <component :is="resolvedComponent" v-bind="providerPropsWithService" @close="close" />
             </template>
             <template #fallback>
               <div class="app-fallback">Loading provider…</div>
@@ -26,6 +26,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import configService from '../services/config.js'
 import IconRenderer from './IconRenderer.vue'
 import { getProviderComponent } from '../providers/registry.js'
 
@@ -44,6 +45,19 @@ const panelRef = ref(null)
 const providerLabel = computed(() => (props.provider || '').toString())
 
 const resolvedComponent = computed(() => getProviderComponent(props.provider))
+
+// Merge providerProps with service-level defaults (e.g., url, username, etc.)
+const providerPropsWithService = computed(() => {
+  const svc = configService.getServiceByType(props.provider) || {}
+  const merged = {
+    baseUrl: svc.url,
+    username: svc.username || svc.user,
+    password: svc.password,
+    rpcPath: svc.rpc_path,
+    ...(props.providerProps || {}),
+  }
+  return merged
+})
 
 const panelStyle = computed(() => {
   const rect = props.anchorRect
