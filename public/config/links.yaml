@@ -211,6 +211,11 @@ links:
         url: 'https://developer.apple.com'
         description: 'Apple Developer'
         enabled: true
+      - type: 'LINK'
+        name: 'Dashboard Icons'
+        url: 'https://dashboardicons.com/'
+        description: 'Dashboard Icons'
+        enabled: true
 
   # Network Services
   - type: 'GROUP'
