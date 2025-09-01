@@ -127,6 +127,8 @@ const panelStyle = computed(() => {
     top: `${Math.max(margin, top)}px`,
     left: `${Math.max(margin, left)}px`,
     width: `${width}px`,
+    minWidth: `${width}px`,
+    maxWidth: `${width}px`,
     maxHeight: `${maxHeight}px`,
     transform,
   }
