@@ -28,12 +28,24 @@ links:
     icon: 'lucide:book-open'
     enabled: true
 
-  - type: 'LINK'
+  - type: 'GROUP'
     name: 'Downloads'
-    url: 'https://nzbget.themysterymachine.net'
     description: 'Downloads'
-    icon: 'lucide:download'
+    icon: 'lucide:shopping-cart'
     enabled: true
+    links:
+      - type: 'LINK'
+        name: 'Downloads'
+        url: 'https://nzbget.themysterymachine.net'
+        description: 'Downloads'
+        icon: 'lucide:download'
+        enabled: true
+      - type: 'LINK'
+        name: 'Indexers'
+        url: 'https://prowlarr.themysterymachine.net'
+        description: 'Prowlarr'
+        icon: 'lucide:index'
+        enabled: true
 
   - type: 'GROUP'
     name: 'Shopping'
