@@ -36,6 +36,9 @@ links:
     provider: 'nzbget'
     props:
       pollInterval: 10000
+    panel:
+      width: 720
+      maxHeight: 560
 
   - type: 'GROUP'
     name: 'Downloads'
