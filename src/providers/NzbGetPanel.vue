@@ -5,19 +5,35 @@
       <span>NZBGet Queue</span>
       <span v-if="loading" class="spinner" aria-hidden="true"></span>
     </div>
-
     <div v-if="error" class="error">{{ error }}</div>
 
     <div v-else class="queue-list">
-      <div v-if="items.length === 0" class="empty">Queue is empty</div>
-      <div v-for="item in items" :key="item.NZBID" class="queue-item">
-        <div class="title-row">
-          <span class="title">{{ item.NZBName }}</span>
-          <span class="progress">{{ item.DownloadedSizeMB }} / {{ item.FileSizeMB }} MB</span>
+      <div v-if="rows.length === 0" class="empty">Queue is empty</div>
+      <div v-else class="table">
+        <div class="thead">
+          <div class="th">Status</div>
+          <div class="th name">Name</div>
+          <div class="th">Category</div>
+          <div class="th">Size</div>
+          <div class="th">Left</div>
+          <div class="th">Est. Time</div>
         </div>
-        <div class="meta-row">
-          <span>{{ item.Category }}</span>
-          <span>{{ item.Status }}</span>
+        <div v-for="row in rows" :key="row.id" class="tr">
+          <div class="td">
+            <span class="status-badge" :class="statusClass(row.status)">{{ row.statusLabel }}</span>
+          </div>
+          <div class="td name">{{ row.displayName }}</div>
+          <div class="td">{{ row.category || '-' }}</div>
+          <div class="td">{{ row.size }}</div>
+          <div class="td">{{ row.left }}</div>
+          <div class="td">{{ row.eta }}</div>
+          <div class="progress-row">
+            <div
+              class="progress-bar"
+              :class="statusClass(row.status)"
+              :style="{ width: row.progress + '%' }"
+            ></div>
+          </div>
         </div>
       </div>
     </div>
@@ -25,7 +41,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import IconRenderer from '../components/IconRenderer.vue'
 import configService from '../services/config.js'
 
@@ -42,6 +58,68 @@ const loading = ref(true)
 const error = ref('')
 const items = ref([])
 let timer = null
+
+const formatSize = (mb) => {
+  const bytes = (Number(mb) || 0) * 1024 * 1024
+  if (bytes >= 1024 ** 4) return (bytes / 1024 ** 4).toFixed(2) + ' TB'
+  if (bytes >= 1024 ** 3) return (bytes / 1024 ** 3).toFixed(2) + ' GB'
+  if (bytes >= 1024 ** 2) return (bytes / 1024 ** 2).toFixed(2) + ' MB'
+  if (bytes >= 1024) return (bytes / 1024).toFixed(2) + ' KB'
+  return Math.max(bytes, 0).toFixed(0) + ' B'
+}
+
+const statusClass = (status) => {
+  const s = String(status || '').toUpperCase()
+  if (s.includes('PAUSE')) return 'status-paused'
+  if (s.includes('POST')) return 'status-post'
+  if (s.includes('DOWN')) return 'status-downloading'
+  return 'status-default'
+}
+
+const parseFriendlyName = (name) => {
+  if (!name) return ''
+  // Basic patterns: Title (Year) ... or Title.Year.... or Title - Year ...
+  const yearMatch = name.match(/\b(19\d{2}|20\d{2})\b/)
+  const qualityMatch = name.match(/(2160p|1080p|720p|UHD|4K|HDR)/i)
+  let title = name
+  if (yearMatch) {
+    const idx = name.indexOf(yearMatch[0])
+    if (idx > 0) {
+      title = name
+        .slice(0, idx)
+        .replace(/[._-]+/g, ' ')
+        .trim()
+    }
+  } else {
+    title = name.replace(/[._-]+/g, ' ').trim()
+  }
+  const parts = []
+  if (title) parts.push(title)
+  if (yearMatch) parts.push(`(${yearMatch[0]})`)
+  if (qualityMatch) parts.push(qualityMatch[0].toUpperCase())
+  return parts.join(' ')
+}
+
+const rows = computed(() => {
+  return (items.value || []).map((it) => {
+    const total = Number(it.FileSizeMB) || 0
+    const done = Number(it.DownloadedSizeMB) || 0
+    const leftMB = Math.max(total - done, Number(it.RemainingSizeMB || 0))
+    const progress = total > 0 ? Math.min(100, Math.max(0, (done / total) * 100)) : 0
+    const eta = it.EtaTime || it.Eta || null // different fields may exist; otherwise blank
+    return {
+      id: it.NZBID || it.NZBId || it.NzbId || it.NZBNAME,
+      status: it.Status || '',
+      statusLabel: (it.Status || '').toString().toUpperCase(),
+      displayName: parseFriendlyName(it.NZBName || it.NzbName || ''),
+      category: it.Category || '',
+      size: formatSize(total),
+      left: formatSize(leftMB),
+      eta: eta ? eta.toString() : '-',
+      progress,
+    }
+  })
+})
 
 const fetchQueue = async () => {
   try {
@@ -138,22 +216,79 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 8px;
 }
-.queue-item {
-  background: rgba(255, 255, 255, 0.08);
+.table {
+  display: flex;
+  flex-direction: column;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
-  padding: 8px;
+  overflow: hidden;
 }
-.title-row {
-  display: flex;
-  justify-content: space-between;
+.thead {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 120px 120px 120px;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.tr {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 120px 120px 120px;
+  gap: 8px;
+  padding: 10px 12px 6px 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.td {
+  font-size: 0.9rem;
+}
+.td.name {
   font-weight: 600;
 }
-.meta-row {
-  display: flex;
-  gap: 12px;
-  font-size: 0.8rem;
-  opacity: 0.9;
+.progress-row {
+  grid-column: 1 / -1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  transition: width 0.25s ease;
+}
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.status-downloading {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+.status-paused {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+}
+.status-post {
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+}
+.progress-bar.status-downloading {
+  background: #10b981;
+}
+.progress-bar.status-paused {
+  background: #f59e0b;
+}
+.progress-bar.status-post {
+  background: #3b82f6;
 }
 .empty {
   opacity: 0.8;
