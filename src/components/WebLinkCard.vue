@@ -73,13 +73,16 @@
     </div>
   </BaseCard>
   <LinkGroupPanel
-    :is-open="isPanelOpen"
-    :anchor-rect="panelAnchor"
-    :links="panelLinks"
+    v-for="(p, i) in panels"
+    :key="i"
+    :is-open="true"
+    :anchor-rect="p.anchorRect"
+    :links="p.links"
     :open-in-new-tab="openInNewTab"
-    :title="panelTitle"
-    :icon="panelIcon"
-    @close="isPanelOpen = false"
+    :title="p.title"
+    :icon="p.icon"
+    @close="closePanelAt(i)"
+    @openGroup="handlePanelOpenGroup(i, $event)"
   />
 </template>
 
@@ -257,24 +260,60 @@ const openLink = (url) => {
   }
 }
 
-// GROUP support
+// GROUP support (nested panels)
 import { ref } from 'vue'
-const isPanelOpen = ref(false)
-const panelAnchor = ref(null)
-const panelLinks = ref([])
-const openGroupIndex = ref(-1)
-const panelTitle = ref('')
-const panelIcon = ref('')
+const panels = ref([])
+const openGroupIndex = ref(-1) // track top-level open group for indicator state
+
+const normalizeChildren = (items = []) => {
+  return (items || [])
+    .filter((l) => l && l.name && (l.url || (l.type || 'LINK').toUpperCase() === 'GROUP'))
+    .map((l) => ({
+      name: l.name,
+      url: l.url,
+      description: l.description || '',
+      icon: l.icon || '',
+      iconUrl: l.iconUrl || l.icon_url || '',
+      type: (l.type || 'LINK').toUpperCase(),
+      links: l.links || [],
+    }))
+}
+
+const pushPanel = ({ anchorRect, links, title, icon }) => {
+  panels.value.push({ anchorRect, links, title, icon })
+}
+
+const closePanelAt = (index) => {
+  if (index === 0) {
+    openGroupIndex.value = -1
+  }
+  // Close the selected panel and any deeper ones
+  panels.value.splice(index)
+}
+
+const handlePanelOpenGroup = (parentIndex, payload) => {
+  // Remove any deeper panels beyond parentIndex, then push child
+  if (panels.value.length > parentIndex + 1) {
+    panels.value.splice(parentIndex + 1)
+  }
+  pushPanel({
+    anchorRect: payload.anchorRect,
+    links: payload.links,
+    title: payload.title,
+    icon: payload.icon,
+  })
+}
 
 const handleItemClick = (evt, item, index) => {
   if ((item.type || 'LINK') === 'GROUP') {
     const rect = evt.currentTarget.getBoundingClientRect()
-    panelAnchor.value = rect
-    panelLinks.value = (item.links || []).filter((l) => l && l.url && l.name)
-    isPanelOpen.value = true
+    pushPanel({
+      anchorRect: rect,
+      links: normalizeChildren(item.links || []),
+      title: item.name,
+      icon: item.icon || '',
+    })
     openGroupIndex.value = index
-    panelTitle.value = item.name
-    panelIcon.value = item.icon || ''
   } else {
     openLink(item.url)
   }

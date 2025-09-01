@@ -14,7 +14,7 @@
             v-for="(link, idx) in links"
             :key="idx"
             class="lgp-item"
-            @click="open(link)"
+            @click="handleItemClick($event, link, idx)"
             :title="link.description || link.name"
           >
             <div class="lgp-icon">
@@ -43,7 +43,7 @@ const props = defineProps({
   icon: { type: String, default: '' },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'openGroup'])
 const panelRef = ref(null)
 
 const panelStyle = computed(() => {
@@ -95,6 +95,36 @@ const open = (link) => {
     window.location.href = link.url
   }
   emit('close')
+}
+
+const normalizeChildren = (items = []) => {
+  return (items || [])
+    .filter((l) => l && l.name && (l.url || String(l.type || 'LINK').toUpperCase() === 'GROUP'))
+    .map((l) => ({
+      name: l.name,
+      url: l.url,
+      description: l.description || '',
+      icon: l.icon || '',
+      iconUrl: l.iconUrl || l.icon_url || '',
+      type: String(l.type || 'LINK').toUpperCase(),
+      links: l.links || [],
+    }))
+}
+
+const handleItemClick = (evt, link) => {
+  const type = String(link?.type || 'LINK').toUpperCase()
+  const hasChildren = Array.isArray(link?.links) && link.links.length > 0
+  if (type === 'GROUP' || (!link?.url && hasChildren)) {
+    const rect = evt.currentTarget.getBoundingClientRect()
+    emit('openGroup', {
+      anchorRect: rect,
+      links: normalizeChildren(link.links || []),
+      title: link.name,
+      icon: link.icon || '',
+    })
+  } else {
+    open(link)
+  }
 }
 
 onMounted(() => {
