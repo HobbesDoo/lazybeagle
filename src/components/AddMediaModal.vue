@@ -365,12 +365,31 @@ const handleAdd = async () => {
       payload.monitoringOptions = {
         monitor: formData.value.monitor,
       }
+      // Ensure required identifier is provided
+      const tvdbId = Number(
+        props.mediaData.tvdbId || props.mediaData.tvdbid || props.mediaData.tvdbID || 0,
+      )
+      if (tvdbId > 0) {
+        payload.tvdbId = tvdbId
+      }
+      // Include titleSlug when available (helps Sonarr resolve the series)
+      if (props.mediaData.titleSlug) {
+        payload.titleSlug = props.mediaData.titleSlug
+      }
     }
 
     // Add Radarr-specific fields
     if (props.mediaData.providerType === 'radarr') {
       payload.minimumAvailability = 'released'
       payload.monitored = true
+      // Provide one of tmdbId or imdbId
+      const tmdbId = Number(props.mediaData.tmdbId || props.mediaData.tmdbID || 0)
+      const imdbId = props.mediaData.imdbId || props.mediaData.imdbID || null
+      if (tmdbId > 0) {
+        payload.tmdbId = tmdbId
+      } else if (imdbId) {
+        payload.imdbId = imdbId
+      }
     }
 
     // Readarr: add author instead of book to satisfy API requirements
