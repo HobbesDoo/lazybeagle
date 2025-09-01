@@ -2,14 +2,54 @@
   <teleport to="body">
     <div v-if="isOpen" class="lgp-overlay" @click.self="close">
       <div class="lgp-panel" :style="panelStyle" ref="panelRef" role="dialog" aria-modal="true">
-        <header class="lgp-header">
+        <header class="lgp-header" ref="headerRef">
           <div class="lgp-title-row">
             <IconRenderer v-if="icon" :icon="icon" :size="14" />
             <div class="lgp-title">{{ title || 'Links' }}</div>
           </div>
-          <button class="lgp-close" @click="close" aria-label="Close">×</button>
+          <div class="lgp-header-controls">
+            <button
+              v-if="canScrollUp"
+              class="nav-button header"
+              @click="scrollBy(-1)"
+              aria-label="Scroll up"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+            </button>
+            <button
+              v-if="canScrollDown"
+              class="nav-button header"
+              @click="scrollBy(1)"
+              aria-label="Scroll down"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <button class="lgp-close" @click="close" aria-label="Close">×</button>
+          </div>
         </header>
-        <div class="lgp-grid">
+        <div class="lgp-grid" ref="bodyRef" @scroll="updateScrollState">
           <button
             v-for="(link, idx) in links"
             :key="idx"
@@ -49,7 +89,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, computed, watch } from 'vue'
+import { onMounted, onUnmounted, ref, computed, watch, nextTick } from 'vue'
 import configService from '../services/config.js'
 import IconRenderer from './IconRenderer.vue'
 
@@ -65,6 +105,8 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'openGroup', 'openApp'])
 const panelRef = ref(null)
+const headerRef = ref(null)
+const bodyRef = ref(null)
 
 const panelStyle = computed(() => {
   const rect = props.anchorRect
@@ -148,6 +190,7 @@ const panelStyle = computed(() => {
     maxWidth: `${width}px`,
     maxHeight: `${maxHeight}px`,
     transform,
+    '--panel-max-height': `${maxHeight}px`,
   }
 })
 
@@ -156,6 +199,30 @@ const onKey = (e) => {
 }
 
 const close = () => emit('close')
+
+const canScrollUp = ref(false)
+const canScrollDown = ref(false)
+const updateScrollState = () => {
+  const el = bodyRef.value
+  if (!el) return
+  canScrollUp.value = el.scrollTop > 0
+  canScrollDown.value = el.scrollTop + el.clientHeight < el.scrollHeight - 1
+}
+const scrollBy = (dir) => {
+  const el = bodyRef.value
+  if (!el) return
+  const amount = Math.round(el.clientHeight * 0.9)
+  el.scrollTo({ top: el.scrollTop + dir * amount, behavior: 'smooth' })
+  setTimeout(updateScrollState, 300)
+}
+
+const setHeaderHeightVar = () => {
+  const panelEl = panelRef.value
+  const headerEl = headerRef.value
+  if (!panelEl || !headerEl) return
+  const h = Math.ceil(headerEl.getBoundingClientRect().height)
+  panelEl.style.setProperty('--panel-header-height', `${h}px`)
+}
 
 const open = (link) => {
   if (!link?.url) return
@@ -216,10 +283,14 @@ const handleItemClick = (evt, link) => {
 
 onMounted(() => {
   window.addEventListener('keydown', onKey)
+  nextTick(updateScrollState)
+  nextTick(setHeaderHeightVar)
+  window.addEventListener('resize', setHeaderHeightVar)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', onKey)
+  window.removeEventListener('resize', setHeaderHeightVar)
 })
 </script>
 
@@ -248,6 +319,21 @@ onUnmounted(() => {
   padding: 6px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
+.lgp-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-button.header {
+  background: transparent;
+  border: none;
+  color: #fff;
+  opacity: 0.7;
+  cursor: pointer;
+}
+.nav-button.header:hover {
+  opacity: 1;
+}
 .lgp-title-row {
   display: flex;
   align-items: center;
@@ -271,8 +357,10 @@ onUnmounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(90px, 110px));
   gap: 6px;
   padding: 8px;
-  max-height: 60vh;
+  /* Fill remaining height under header for consistent scrolling */
+  max-height: calc(var(--panel-max-height, 60vh) - var(--panel-header-height, 40px));
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   align-content: center;
   justify-content: center;
   justify-items: center;
