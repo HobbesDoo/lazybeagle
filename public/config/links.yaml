@@ -41,10 +41,10 @@ links:
         icon: 'asset:svg:nzbget'
         enabled: true
       - type: 'LINK'
-        name: 'Indexers'
+        name: 'Prowlarr'
         url: 'https://prowlarr.themysterymachine.net'
         description: 'Prowlarr'
-        icon: 'lucide:index'
+        icon: 'asset:svg:prowlarr'
         enabled: true
       - type: 'LINK'
         name: 'NZB Geek'
