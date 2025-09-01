@@ -50,13 +50,12 @@ links:
         name: 'NZB Geek'
         url: 'https://nzbgeek.net'
         description: 'NZB Geek'
-        icon: 'lucide:index'
+        icon: 'asset:png:nzbgeek'
         enabled: true
       - type: 'LINK'
         name: 'NZB Planet'
         url: 'https://nzbplanet.net'
         description: 'NZB Planet'
-        icon: 'lucide:index'
         enabled: true
 
   - type: 'GROUP'
