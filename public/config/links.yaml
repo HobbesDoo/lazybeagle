@@ -40,10 +40,10 @@ links:
         description: 'Download Qeueue Manager'
         icon: 'asset:svg:nzbget'
         enabled: true
-      - type: APP
-        name: NZBGet
-        icon: lucide:download
-        provider: nzbget
+      - type: 'APP'
+        name: 'NZBGet'
+        icon: 'lucide:download'
+        provider: 'nzbget'
         props:
           pollInterval: 10000
       - type: 'LINK'
