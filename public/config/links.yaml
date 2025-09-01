@@ -37,25 +37,25 @@ links:
       - type: 'LINK'
         name: 'NZBGet'
         url: 'https://nzbget.themysterymachine.net'
-        description: 'Downloads'
+        description: 'Download Qeueue Manager'
         icon: 'asset:svg:nzbget'
         enabled: true
       - type: 'LINK'
         name: 'Prowlarr'
         url: 'https://prowlarr.themysterymachine.net'
-        description: 'Prowlarr'
+        description: 'Download Indexers'
         icon: 'asset:svg:prowlarr'
         enabled: true
       - type: 'LINK'
         name: 'NZB Geek'
         url: 'https://nzbgeek.net'
-        description: 'NZB Geek'
+        description: 'NZB Search'
         icon: 'asset:png:nzbgeek'
         enabled: true
       - type: 'LINK'
         name: 'NZB Planet'
         url: 'https://nzbplanet.net'
-        description: 'NZB Planet'
+        description: 'NZB Search'
         enabled: true
 
   - type: 'GROUP'
