@@ -206,6 +206,11 @@ links:
         url: 'https://thangs.com'
         description: 'Thangs'
         enabled: true
+      - type: 'LINK'
+        name: 'MakerWorld'
+        url: 'https://makerworld.com/en'
+        description: 'MakerWorld'
+        enabled: true
 
   # Network Services
   - type: 'GROUP'
