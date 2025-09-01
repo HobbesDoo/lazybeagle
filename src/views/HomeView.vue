@@ -324,6 +324,8 @@ onUnmounted(() => {
             iconUrl: l.icon_url,
             type: l.type || 'LINK',
             links: l.links || [],
+            provider: l.provider || l.app || '',
+            props: l.props || l.providerProps || {},
           }))
         "
       />

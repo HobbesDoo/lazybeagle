@@ -31,6 +31,7 @@ links:
   - type: 'APP'
     name: 'NZBGet'
     icon: 'lucide:download'
+    enabled: true
     provider: 'nzbget'
     props:
       pollInterval: 10000
