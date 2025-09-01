@@ -354,7 +354,7 @@ const handleItemClick = (evt, item, index) => {
     pushPanel({
       anchorRect: rect,
       links: normalizeChildren(item.links || []),
-      title: item.name,
+      title: item.description || item.name,
       icon: item.icon || '',
       panel: item.panel || {},
     })
