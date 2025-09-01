@@ -151,11 +151,14 @@ onUnmounted(() => {
 
 .lgp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 10px;
-  padding: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 110px));
+  gap: 6px;
+  padding: 8px;
   max-height: 60vh;
   overflow: auto;
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
 }
 
 .lgp-item {
@@ -164,36 +167,52 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
+  border: none;
+  background: transparent;
   cursor: pointer;
+  border-radius: 12px;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
   color: inherit;
 }
 
 .lgp-item:hover {
-  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .lgp-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .lgp-icon img {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   border-radius: 6px;
 }
 
 .lgp-name {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
   text-align: center;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
