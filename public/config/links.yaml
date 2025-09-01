@@ -35,10 +35,10 @@ links:
     enabled: true
     links:
       - type: 'LINK'
-        name: 'Downloads'
+        name: 'NZBGet'
         url: 'https://nzbget.themysterymachine.net'
         description: 'Downloads'
-        icon: 'lucide:download'
+        icon: 'asset:svg:nzbget'
         enabled: true
       - type: 'LINK'
         name: 'Indexers'
