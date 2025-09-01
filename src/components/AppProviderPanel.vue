@@ -7,9 +7,49 @@
             <IconRenderer v-if="icon" :icon="icon" :size="14" />
             <div class="app-title">{{ effectiveTitle }}</div>
           </div>
-          <button class="app-close" @click="close" aria-label="Close">×</button>
+          <div class="app-header-controls">
+            <button
+              v-if="canScrollUp"
+              class="nav-button header"
+              @click="scrollBy(-1)"
+              aria-label="Scroll up"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+            </button>
+            <button
+              v-if="canScrollDown"
+              class="nav-button header"
+              @click="scrollBy(1)"
+              aria-label="Scroll down"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <button class="app-close" @click="close" aria-label="Close">×</button>
+          </div>
         </header>
-        <div class="app-body">
+        <div class="app-body" ref="bodyRef" @scroll="updateScrollState">
           <Suspense>
             <template #default>
               <component :is="resolvedComponent" v-bind="providerPropsWithService" @close="close" />
@@ -25,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import configService from '../services/config.js'
 import IconRenderer from './IconRenderer.vue'
 import { getProviderComponent } from '../providers/registry.js'
@@ -42,6 +82,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 const panelRef = ref(null)
+const bodyRef = ref(null)
 
 const providerLabel = computed(() => (props.provider || '').toString())
 
@@ -116,7 +157,9 @@ const panelStyle = computed(() => {
         maxCap,
       },
     })
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   let top = 80
   let maxHeight = maxCap
   let transform = 'translateY(0)'
@@ -162,6 +205,7 @@ onMounted(() => {
     anchorRect: props.anchorRect,
   })
   window.addEventListener('keydown', onKey)
+  nextTick(updateScrollState)
 })
 
 onUnmounted(() => {
@@ -174,6 +218,22 @@ watch(
     console.log('[AppProviderPanel] provider changed →', p)
   },
 )
+
+const canScrollUp = ref(false)
+const canScrollDown = ref(false)
+const updateScrollState = () => {
+  const el = bodyRef.value
+  if (!el) return
+  canScrollUp.value = el.scrollTop > 0
+  canScrollDown.value = el.scrollTop + el.clientHeight < el.scrollHeight - 1
+}
+const scrollBy = (dir) => {
+  const el = bodyRef.value
+  if (!el) return
+  const amount = Math.round(el.clientHeight * 0.9)
+  el.scrollTo({ top: el.scrollTop + dir * amount, behavior: 'smooth' })
+  setTimeout(updateScrollState, 300)
+}
 </script>
 
 <style scoped>
@@ -201,6 +261,21 @@ watch(
   padding: 6px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
+.app-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-button.header {
+  background: transparent;
+  border: none;
+  color: #fff;
+  opacity: 0.7;
+  cursor: pointer;
+}
+.nav-button.header:hover {
+  opacity: 1;
+}
 .app-title-row {
   display: flex;
   align-items: center;
@@ -224,6 +299,21 @@ watch(
   padding: 8px;
   max-height: 60vh;
   overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+.app-body::-webkit-scrollbar {
+  width: 6px;
+}
+.app-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.app-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+}
+.app-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .app-fallback {
