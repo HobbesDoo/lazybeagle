@@ -10,7 +10,14 @@
           <button class="app-close" @click="close" aria-label="Close">×</button>
         </header>
         <div class="app-body">
-          <component :is="resolvedComponent" v-bind="providerProps" @close="close" />
+          <Suspense>
+            <template #default>
+              <component :is="resolvedComponent" v-bind="providerProps" @close="close" />
+            </template>
+            <template #fallback>
+              <div class="app-fallback">Loading provider…</div>
+            </template>
+          </Suspense>
         </div>
       </div>
     </div>
@@ -148,5 +155,10 @@ watch(
   padding: 8px;
   max-height: 60vh;
   overflow: auto;
+}
+
+.app-fallback {
+  padding: 8px;
+  opacity: 0.9;
 }
 </style>

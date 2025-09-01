@@ -331,6 +331,7 @@ const handlePanelOpenGroup = (parentIndex, payload) => {
 }
 
 const handlePanelOpenApp = (parentIndex, payload) => {
+  console.log('[WebLinkCard] nested openApp', parentIndex, payload)
   if (panels.value.length > parentIndex + 1) {
     panels.value.splice(parentIndex + 1)
   }
@@ -357,6 +358,12 @@ const handleItemClick = (evt, item, index) => {
     openGroupIndex.value = index
   } else if (itemType === 'APP') {
     const rect = evt.currentTarget.getBoundingClientRect()
+    console.log('[WebLinkCard] opening APP panel', {
+      provider: item.provider,
+      title: item.name,
+      icon: item.icon,
+      rect,
+    })
     pushPanel({
       kind: 'app',
       anchorRect: rect,
