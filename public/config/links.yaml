@@ -37,7 +37,7 @@ links:
     props:
       pollInterval: 10000
     panel:
-      gridWidth: 6
+      gridWidth: 8
       gridHeight: 3
 
   - type: 'GROUP'
