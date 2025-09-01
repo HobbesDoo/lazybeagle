@@ -1,10 +1,5 @@
 <template>
   <div class="provider-root">
-    <div class="provider-header">
-      <IconRenderer icon="lucide:download" :size="16" />
-      <span>NZBGet Queue</span>
-      <span v-if="loading" class="spinner" aria-hidden="true"></span>
-    </div>
     <div v-if="error" class="error">{{ error }}</div>
 
     <div v-else class="queue-list">
@@ -49,7 +44,6 @@
 
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from 'vue'
-import IconRenderer from '../components/IconRenderer.vue'
 import configService from '../services/config.js'
 
 // Optional props: baseUrl/username/password/rpcPath overrides or polling interval
