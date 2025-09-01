@@ -93,6 +93,7 @@
       :icon="p.icon"
       @close="closePanelAt(i)"
       @openGroup="handlePanelOpenGroup(i, $event)"
+      @openApp="handlePanelOpenApp(i, $event)"
     />
   </template>
 </template>
@@ -324,6 +325,20 @@ const handlePanelOpenGroup = (parentIndex, payload) => {
   pushPanel({
     anchorRect: payload.anchorRect,
     links: payload.links,
+    title: payload.title,
+    icon: payload.icon,
+  })
+}
+
+const handlePanelOpenApp = (parentIndex, payload) => {
+  if (panels.value.length > parentIndex + 1) {
+    panels.value.splice(parentIndex + 1)
+  }
+  pushPanel({
+    kind: 'app',
+    anchorRect: payload.anchorRect,
+    provider: payload.provider,
+    props: payload.props || {},
     title: payload.title,
     icon: payload.icon,
   })

@@ -61,7 +61,7 @@ const props = defineProps({
   icon: { type: String, default: '' },
 })
 
-const emit = defineEmits(['close', 'openGroup'])
+const emit = defineEmits(['close', 'openGroup', 'openApp'])
 const panelRef = ref(null)
 
 const panelStyle = computed(() => {
@@ -117,7 +117,10 @@ const open = (link) => {
 
 const normalizeChildren = (items = []) => {
   return (items || [])
-    .filter((l) => l && l.name && (l.url || String(l.type || 'LINK').toUpperCase() === 'GROUP'))
+    .filter((l) => {
+      const type = String(l?.type || 'LINK').toUpperCase()
+      return l && l.name && (l.url || type === 'GROUP' || type === 'APP')
+    })
     .map((l) => ({
       name: l.name,
       url: l.url,
@@ -126,6 +129,9 @@ const normalizeChildren = (items = []) => {
       iconUrl: l.iconUrl || l.icon_url || '',
       type: String(l.type || 'LINK').toUpperCase(),
       links: l.links || [],
+      provider: l.provider || l.app || '',
+      providerProps: l.props || l.providerProps || {},
+      panel: l.panel || {},
     }))
 }
 
@@ -137,6 +143,15 @@ const handleItemClick = (evt, link) => {
     emit('openGroup', {
       anchorRect: rect,
       links: normalizeChildren(link.links || []),
+      title: link.name,
+      icon: link.icon || '',
+    })
+  } else if (type === 'APP') {
+    const rect = evt.currentTarget.getBoundingClientRect()
+    emit('openApp', {
+      anchorRect: rect,
+      provider: link.provider || '',
+      props: link.providerProps || {},
       title: link.name,
       icon: link.icon || '',
     })
