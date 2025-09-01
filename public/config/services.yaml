@@ -32,3 +32,12 @@ services:
     access_key: 'QSBhos-6WIEr4v0s7tFNHrSgGPTm9tfybyNAMW596Wg'
     secret_key: 'CmrJ-0YwWwGQ2g-dCaT1plqkxyVC5TVzGvT489fUs0E'
     icon: 'lucide:image'
+
+  - id: 'nzbget'
+    name: 'nzbget'
+    api_type: 'nzbget'
+    icon: 'lucide:image'
+    url: 'https://nzbget.themysterymachine.net'
+    username: 'nzbget'
+    password: 'Scooby12'
+    rpc_path: '/jsonrpc'

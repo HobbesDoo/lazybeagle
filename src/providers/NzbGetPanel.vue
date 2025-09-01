@@ -25,13 +25,17 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import IconRenderer from '../components/IconRenderer.vue'
 import configService from '../services/config.js'
 
-// Optional props: baseUrl/apiKey overrides or polling interval
+// Optional props: baseUrl/username/password/rpcPath overrides or polling interval
 const props = defineProps({
   pollInterval: { type: Number, default: 0 },
+  baseUrl: { type: String, default: '' },
+  username: { type: String, default: '' },
+  password: { type: String, default: '' },
+  rpcPath: { type: String, default: '' },
 })
 
 const loading = ref(true)
@@ -44,17 +48,25 @@ const fetchQueue = async () => {
     loading.value = true
     error.value = ''
 
-    // Expect NZBGet defined in services.yaml (or links provider config later)
+    // Expect NZBGet defined in services.yaml (or overridden via props)
     const svc = configService.getServiceByType('nzbget') || {}
-    const baseUrl = (svc.url || '').replace(/\/$/, '')
-    const apiKey = svc.api_key || ''
+    const base = (props.baseUrl || svc.url || '').replace(/\/$/, '')
+    const user = props.username || svc.username || svc.user || ''
+    const pass = props.password || svc.password || ''
+    const rpcPath = props.rpcPath || svc.rpc_path || '/jsonrpc'
 
-    if (!baseUrl) throw new Error('NZBGet service not configured')
+    if (!base) throw new Error('NZBGet service not configured')
 
-    // NZBGet JSON-RPC: /jsonrpc
-    const res = await fetch(`${baseUrl}/jsonrpc`, {
+    // Build headers (Basic Auth if user/pass provided)
+    const headers = { 'Content-Type': 'application/json' }
+    if (user || pass) {
+      headers['Authorization'] = 'Basic ' + btoa(`${user}:${pass}`)
+    }
+
+    // NZBGet JSON-RPC
+    const res = await fetch(`${base}${rpcPath}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Api-Key': apiKey },
+      headers,
       body: JSON.stringify({ method: 'listgroups', params: [] }),
       mode: 'cors',
     })
@@ -73,6 +85,10 @@ onMounted(() => {
   if (props.pollInterval > 0) {
     timer = setInterval(fetchQueue, props.pollInterval)
   }
+})
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
 })
 </script>
 
@@ -100,7 +116,9 @@ onMounted(() => {
   margin-left: auto;
 }
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 .queue-list {
   display: flex;
