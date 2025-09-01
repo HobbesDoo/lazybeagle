@@ -238,7 +238,7 @@ onUnmounted(() => {
 }
 .thead {
   display: grid;
-  grid-template-columns: 100px 1fr 120px 120px 120px 120px;
+  grid-template-columns: 100px 1fr 120px 120px 120px;
   gap: 8px;
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.08);
@@ -247,7 +247,7 @@ onUnmounted(() => {
 }
 .tr {
   display: grid;
-  grid-template-columns: 100px 1fr 120px 120px 120px 120px;
+  grid-template-columns: 100px 1fr 120px 120px 120px;
   gap: 8px;
   padding: 10px 12px 6px 12px;
   align-items: center;
