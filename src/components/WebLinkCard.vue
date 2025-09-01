@@ -376,8 +376,9 @@ const handleItemClick = (evt, item, index) => {
         ...(item.providerProps || {}),
         baseUrl: undefined, // filled by provider from services unless overridden
       },
-      title: item.name,
+      title: item.description || item.name,
       icon: item.icon || '',
+      panel: item.panel || {},
     })
   } else {
     openLink(item.url)
