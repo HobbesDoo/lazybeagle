@@ -24,7 +24,7 @@ links:
   - type: 'LINK'
     name: 'Books'
     url: 'https://lazylibrarian.themysterymachine.net'
-    description: 'Books'
+    description: 'Books Manager'
     icon: 'lucide:book-open'
     enabled: true
 
