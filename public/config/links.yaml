@@ -204,6 +204,7 @@ links:
         description: 'Ebooks'
         icon: 'asset:svg:calibre'
         enabled: true
+
       - type: 'LINK'
         name: 'Mylar3'
         url: 'https://mylar.themysterymachine.net'
