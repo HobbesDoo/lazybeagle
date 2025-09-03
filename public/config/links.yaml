@@ -25,7 +25,7 @@ links:
     name: 'Books'
     url: 'https://lazylibrarian.themysterymachine.net'
     description: 'Books Manager'
-    icon: 'lucide:book-open'
+    icon: 'asset:png:lazylibrarian'
     enabled: true
 
   - type: 'APP'
@@ -183,7 +183,7 @@ links:
         name: 'lazylibrarian'
         url: 'https://lazylibrarian.themysterymachine.net'
         description: 'Books'
-        icon: 'lucide:book-open'
+        icon: 'asset:png:lazylibrarian'
         enabled: true
 
       - type: 'LINK'
