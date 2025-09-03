@@ -155,6 +155,7 @@ links:
         url: 'https://playnow.com'
         description: 'Lottery'
         enabled: true
+
       - type: 'LINK'
         name: 'Steam Store'
         url: 'https://store.steampowered.com/'
