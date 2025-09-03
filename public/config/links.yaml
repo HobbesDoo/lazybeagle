@@ -59,6 +59,7 @@ links:
         description: 'Download Indexers'
         icon: 'asset:svg:prowlarr'
         enabled: true
+
       - type: 'GROUP'
         name: 'Search'
         description: 'Search Engines'
