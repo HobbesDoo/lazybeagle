@@ -180,6 +180,7 @@ links:
         description: 'Books'
         icon: 'lucide:book-open'
         enabled: true
+
       - type: 'LINK'
         name: 'komga'
         url: 'https://komga.themysterymachine.net'
