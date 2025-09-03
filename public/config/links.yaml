@@ -226,6 +226,7 @@ links:
         description: 'n8n'
         icon: 'asset:svg:n8n'
         enabled: true
+
       - type: 'LINK'
         name: 'Open AI'
         url: 'https://platform.openai.com/docs/overview'
