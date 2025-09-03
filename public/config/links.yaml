@@ -187,6 +187,7 @@ links:
         description: 'Comics'
         icon: 'asset:svg:komga'
         enabled: true
+
       - type: 'LINK'
         name: 'calibre-web'
         url: 'https://calibreweb.themysterymachine.net'
