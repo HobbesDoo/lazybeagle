@@ -131,6 +131,7 @@ links:
         url: 'https://royalbank.com'
         description: 'RBC'
         enabled: true
+
       - type: 'LINK'
         name: 'BMO'
         url: 'https://bmo.com'
