@@ -121,6 +121,12 @@ links:
         description: 'Save On Foods'
         enabled: true
 
+      - type: 'LINK'
+        name: 'Rona'
+        url: 'https://rona.cs'
+        description: 'Rona Hardware Store'
+        enabled: true
+
   - type: 'GROUP'
     name: 'Banking'
     description: 'Banking'
