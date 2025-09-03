@@ -52,6 +52,7 @@ links:
         description: 'Download Qeueue Manager'
         icon: 'asset:svg:nzbget'
         enabled: true
+
       - type: 'LINK'
         name: 'Prowlarr'
         url: 'https://prowlarr.themysterymachine.net'
