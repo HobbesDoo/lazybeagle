@@ -40,6 +40,7 @@ links:
       gridWidth: 6
       gridHeight: 8
 
+  # NZB Downloads
   - type: 'GROUP'
     name: 'Downloads'
     description: 'Downloads'
@@ -60,6 +61,7 @@ links:
         icon: 'asset:svg:prowlarr'
         enabled: true
 
+      # NZB Search Providers
       - type: 'GROUP'
         name: 'Search'
         description: 'Search Engines'
@@ -78,6 +80,7 @@ links:
             description: 'NZB Search'
             enabled: true
 
+  # Shopping
   - type: 'GROUP'
     name: 'Shopping'
     description: 'Shopping'
@@ -127,6 +130,7 @@ links:
         description: 'Rona Hardware Store'
         enabled: true
 
+  # Banking
   - type: 'GROUP'
     name: 'Banking'
     description: 'Banking'
@@ -151,6 +155,7 @@ links:
         description: 'Scotiabank'
         enabled: true
 
+  # Games
   - type: 'GROUP'
     name: 'Gaming'
     description: 'Gaming'
@@ -171,7 +176,7 @@ links:
       - type: 'LINK'
         name: 'Fanatical'
         url: 'https://fanatical.com'
-        description: 'Books'
+        description: 'Discount Games Store'
         enabled: true
       - type: 'LINK'
         name: 'Elden Ring'
@@ -179,6 +184,7 @@ links:
         description: 'Elden Ring Wiki'
         enabled: true
 
+  # Book Services
   - type: 'GROUP'
     name: 'Books'
     description: 'Books'
@@ -219,7 +225,7 @@ links:
         icon: 'asset:png:mylar3'
         enabled: true
 
-  # Network Services
+  # Development
   - type: 'GROUP'
     name: 'Dev'
     description: 'Development'
@@ -250,7 +256,7 @@ links:
         description: 'Dashboard Icons'
         enabled: true
 
-  # Network Services
+  # 3D Printing
   - type: 'GROUP'
     name: '3D Printing'
     description: '3D Printing'
@@ -280,6 +286,13 @@ links:
     icon: 'lucide:network'
     enabled: true
     links:
+      - type: 'LINK'
+        name: 'Prometheus'
+        url: 'https://prometheus.themysterymachine.net'
+        description: 'Monitoring'
+        icon: 'asset:svg:prometheus'
+        enabled: true
+
       - type: 'LINK'
         name: 'Home Assistant'
         url: 'https://homeassistant.themysterymachine.net'
