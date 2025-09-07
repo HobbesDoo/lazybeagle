@@ -6,55 +6,22 @@
 -->
 
 <template>
-  <BaseCard
-    :grid-width="gridWidth"
-    :grid-height="gridHeight"
-    :grid-column-start="gridColumnStart"
-    :grid-row-start="gridRowStart"
-    :variant="variant"
-    :clickable="!(links && links.length)"
-    :bordered="true"
-    :shadow="true"
-    :frameless="true"
-    :content-align="'center'"
-    :content-v-align="'middle'"
-    @click="handleClick"
-    :style="{}"
-  >
+  <BaseCard :grid-width="gridWidth" :grid-height="gridHeight" :grid-column-start="gridColumnStart"
+    :grid-row-start="gridRowStart" :variant="variant" :clickable="!(links && links.length)" :bordered="true"
+    :shadow="true" :frameless="true" :content-align="'center'" :content-v-align="'middle'" @click="handleClick"
+    :style="{}">
     <!-- Container mode: render multiple links if provided -->
     <div v-if="links && links.length" class="links-grid" @click.stop>
-      <button
-        v-for="(item, index) in normalizedLinks"
-        :key="index"
-        class="link-item"
-        @click="handleItemClick($event, item, index)"
-        :title="item.description || item.name"
-      >
+      <button v-for="(item, index) in normalizedLinks" :key="index" class="link-item"
+        @click="handleItemClick($event, item, index)" :title="item.description || item.name">
         <div class="app-icon">
-          <img
-            v-if="item.iconUrl"
-            :src="item.iconUrl"
-            :alt="`${item.name} icon`"
-            class="icon-image"
-          />
+          <img v-if="item.iconUrl" :src="item.iconUrl" :alt="`${item.name} icon`" class="icon-image" />
           <IconRenderer v-else-if="item.icon" :icon="item.icon" :size="28" />
           <IconRenderer v-else :url="item.url" :size="28" />
-          <div
-            v-if="item.type === 'GROUP'"
-            class="group-indicator inside"
-            :class="{ open: isPanelOpen && openGroupIndex === index }"
-            aria-hidden="true"
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+          <div v-if="item.type === 'GROUP'" class="group-indicator inside"
+            :class="{ open: isPanelOpen && openGroupIndex === index }" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </div>
@@ -73,30 +40,11 @@
     </div>
   </BaseCard>
   <template v-for="(p, i) in panels" :key="i">
-    <AppProviderPanel
-      v-if="p.kind === 'app'"
-      :is-open="true"
-      :anchor-rect="p.anchorRect"
-      :title="p.title"
-      :icon="p.icon"
-      :provider="p.provider"
-      :provider-props="p.props"
-      :panel="p.panel"
-      @close="closePanelAt(i)"
-    />
-    <LinkGroupPanel
-      v-else
-      :is-open="true"
-      :anchor-rect="p.anchorRect"
-      :links="p.links"
-      :open-in-new-tab="openInNewTab"
-      :title="p.title"
-      :icon="p.icon"
-      :panel="p.panel"
-      @close="closePanelAt(i)"
-      @openGroup="handlePanelOpenGroup(i, $event)"
-      @openApp="handlePanelOpenApp(i, $event)"
-    />
+    <AppProviderPanel v-if="p.kind === 'app'" :is-open="true" :anchor-rect="p.anchorRect" :title="p.title"
+      :icon="p.icon" :provider="p.provider" :provider-props="p.props" :panel="p.panel" @close="closePanelAt(i)" />
+    <LinkGroupPanel v-else :is-open="true" :anchor-rect="p.anchorRect" :links="p.links" :open-in-new-tab="openInNewTab"
+      :title="p.title" :icon="p.icon" :panel="p.panel" @close="closePanelAt(i)"
+      @openGroup="handlePanelOpenGroup(i, $event)" @openApp="handlePanelOpenApp(i, $event)" />
   </template>
 </template>
 
@@ -224,7 +172,7 @@ const props = defineProps({
    */
   openInNewTab: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 })
 
@@ -394,7 +342,8 @@ const handleItemClick = (evt, item, index) => {
   padding: 8px;
   width: 100%;
   height: 100%;
-  overflow-y: auto; /* allow labels to remain visible when tight on height */
+  overflow-y: auto;
+  /* allow labels to remain visible when tight on height */
   overscroll-behavior: contain;
   padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
   align-content: center;
@@ -431,6 +380,7 @@ const handleItemClick = (evt, item, index) => {
 .app-icon {
   position: relative;
 }
+
 .group-indicator.inside {
   position: absolute;
   top: 4px;
@@ -444,6 +394,7 @@ const handleItemClick = (evt, item, index) => {
   align-items: center;
   justify-content: center;
 }
+
 .group-indicator.inside.open {
   transform: rotate(90deg);
 }

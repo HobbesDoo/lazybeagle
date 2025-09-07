@@ -31,7 +31,7 @@ links:
   - type: 'APP'
     name: 'Queue'
     description: 'Download Queue'
-    icon: 'lucide:download'
+    icon: 'asset:svg:nzbget'
     enabled: true
     provider: 'nzbget'
     props:
@@ -44,7 +44,7 @@ links:
   - type: 'GROUP'
     name: 'Downloads'
     description: 'Downloads'
-    icon: 'lucide:shopping-cart'
+    icon: 'lucide:download'
     enabled: true
     links:
       - type: 'LINK'
@@ -245,11 +245,13 @@ links:
         description: 'Open AI API Platform'
         icon: 'asset:svg:openai'
         enabled: true
+
       - type: 'LINK'
         name: 'Apple Developer'
         url: 'https://developer.apple.com'
         description: 'Apple Developer'
         enabled: true
+
       - type: 'LINK'
         name: 'Dashboard Icons'
         url: 'https://dashboardicons.com/'
@@ -268,11 +270,13 @@ links:
         url: 'https://bambulab.com'
         description: 'Bambu Labs'
         enabled: true
+
       - type: 'LINK'
         name: 'Thangs'
         url: 'https://thangs.com'
         description: 'Thangs'
         enabled: true
+
       - type: 'LINK'
         name: 'MakerWorld'
         url: 'https://makerworld.com/en'
@@ -333,11 +337,4 @@ links:
         url: 'https://portainer.themysterymachine.net'
         description: 'Docker Management'
         icon: 'asset:svg:portainer'
-        enabled: true
-
-      - type: 'LINK'
-        name: 'Zabbix'
-        url: 'https://zabbix.themysterymachine.net'
-        description: 'Monitoring'
-        icon: 'asset:svg:zabbix'
         enabled: true
