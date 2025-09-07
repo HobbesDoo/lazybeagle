@@ -348,7 +348,7 @@ const handleItemClick = (evt, item, index) => {
   padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
   align-content: left;
   justify-content: left;
-  justify-items: center;
+  justify-items: left;
 }
 
 .link-item {
