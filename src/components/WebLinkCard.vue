@@ -8,8 +8,8 @@
 <template>
   <BaseCard :grid-width="gridWidth" :grid-height="gridHeight" :grid-column-start="gridColumnStart"
     :grid-row-start="gridRowStart" :variant="variant" :clickable="!(links && links.length)" :bordered="true"
-    :shadow="true" :frameless="true" :content-align="'center'" :content-v-align="'middle'" @click="handleClick"
-    :style="{}">
+    :shadow="true" :frameless="true" :content-align="(links && links.length) ? 'stretch' : 'center'"
+    :content-v-align="'middle'" @click="handleClick" :style="{}">
     <!-- Container mode: render multiple links if provided -->
     <div v-if="links && links.length" class="links-grid" @click.stop>
       <button v-for="(item, index) in normalizedLinks" :key="index" class="link-item"
@@ -346,9 +346,10 @@ const handleItemClick = (evt, item, index) => {
   /* allow labels to remain visible when tight on height */
   overscroll-behavior: contain;
   padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
-  align-content: left;
-  justify-content: left;
-  justify-items: left;
+  /* Ensure grid starts from the left and fills width */
+  justify-content: start;
+  align-content: start;
+  justify-items: stretch;
 }
 
 .link-item {
