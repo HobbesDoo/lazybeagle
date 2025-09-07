@@ -346,8 +346,8 @@ const handleItemClick = (evt, item, index) => {
   /* allow labels to remain visible when tight on height */
   overscroll-behavior: contain;
   padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
-  align-content: center;
-  justify-content: center;
+  align-content: left;
+  justify-content: left;
   justify-items: center;
 }
 
