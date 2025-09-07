@@ -361,9 +361,10 @@ onUnmounted(() => {
   max-height: calc(var(--panel-max-height, 60vh) - var(--panel-header-height, 40px));
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  align-content: center;
-  justify-content: center;
-  justify-items: center;
+  /* Left-align grid within the panel and let items fill tracks */
+  justify-content: start;
+  align-content: start;
+  justify-items: stretch;
 }
 
 .lgp-item {

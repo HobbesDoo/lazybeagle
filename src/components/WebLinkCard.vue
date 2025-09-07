@@ -403,13 +403,16 @@ const handleItemClick = (evt, item, index) => {
 .web-link-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
   padding: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   border-radius: 16px;
   background: transparent;
+  /* Ensure grid starts from the left and fills width */
+  justify-content: start;
+  align-content: start;
+  justify-items: stretch;
 }
 
 .web-link-card:hover {
