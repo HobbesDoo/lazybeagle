@@ -1,0 +1,14 @@
+# Pages
+pages:
+  - name: 'home'
+    title: 'Home Page'
+    subtitle: 'My personal page'
+    description: 'Dashboard'
+    icon: 'asset:svg:youtube'
+    enabled: true
+    grid:
+      columns: 10
+      rows: 10
+    background:
+      type: 'URL'
+      url: 'htts://mybackgroundimage.png'
