@@ -309,13 +309,11 @@ const displayReleases = computed(() => {
   return [...actualReleases, ...placeholders]
 })
 
-// Get service configuration
+// Get service configuration robustly from services.yaml
 const getServiceConfig = () => {
-  const services = configService.config.links || configService.config.services || []
-  const serviceName = props.serviceType === 'sonarr' ? 'TV Shows' : 'Movies'
-  return services.find(
-    (service) => service.name === serviceName || service.url.includes(props.serviceType),
-  )
+  // Prefer the resolver that understands api_type/name variants
+  const svc = configService.getServiceByType(props.serviceType)
+  return svc || null
 }
 
 // Format date with smart formatting - handle timezones properly
@@ -384,7 +382,7 @@ const fetchReleases = async () => {
       throw new Error(`${props.serviceType} service not configured`)
     }
 
-    const baseUrl = serviceConfig.url.replace(/\/$/, '')
+    const baseUrl = (serviceConfig.url || '').replace(/\/$/, '')
     const endpoint = props.serviceType === 'sonarr' ? '/api/v3/calendar' : '/api/v3/calendar'
 
     // Get API key
@@ -447,16 +445,21 @@ const fetchReleases = async () => {
         }
         */
 
-        return {
-          id: item.id,
-          title:
-            props.serviceType === 'sonarr'
-              ? `${item.series?.title || 'Unknown Series'} - S${String(item.seasonNumber || 0).padStart(2, '0')}E${String(item.episodeNumber || 0).padStart(2, '0')}`
-              : item.title,
-          airDate: props.serviceType === 'sonarr' ? item.airDateUtc : item.digitalRelease,
-          poster: posterUrl,
-          raw: item,
+        // Normalize fields between Sonarr and Radarr
+        const normalized = { id: item.id, poster: posterUrl, raw: item }
+        if (props.serviceType === 'sonarr') {
+          normalized.title = `${item.series?.title || 'Unknown Series'} - S${String(
+            item.seasonNumber || 0,
+          ).padStart(2, '0')}E${String(item.episodeNumber || 0).padStart(2, '0')}`
+          normalized.airDate = item.airDateUtc || item.airDate || item.releaseDate || null
+        } else {
+          // Try multiple Radarr date fields in order of usefulness
+          const date =
+            item.digitalRelease || item.inCinemas || item.physicalRelease || item.releaseDate || null
+          normalized.title = item.title || item.originalTitle || 'Upcoming Movie'
+          normalized.airDate = date
         }
+        return normalized
       })
       .filter((item) => {
         if (!item.airDate) return false
