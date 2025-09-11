@@ -7,27 +7,6 @@ links:
     icon: 'asset:svg:youtube'
     enabled: true
 
-  - type: 'LINK'
-    name: 'TV Shows'
-    url: 'https://sonarr.themysterymachine.net'
-    description: 'TV Shows'
-    icon: 'lucide:tv'
-    enabled: true
-
-  - type: 'LINK'
-    name: 'Movies'
-    url: 'https://radarr.themysterymachine.net'
-    description: 'Movies'
-    icon: 'lucide:film'
-    enabled: true
-
-  - type: 'LINK'
-    name: 'Books'
-    url: 'https://lazylibrarian.themysterymachine.net'
-    description: 'Books Manager'
-    icon: 'asset:png:lazylibrarian'
-    enabled: true
-
   - type: 'APP'
     name: 'Queue'
     description: 'Download Queue'
@@ -40,13 +19,34 @@ links:
       gridWidth: 6
       gridHeight: 8
 
-  # NZB Downloads
+  # Media Services
   - type: 'GROUP'
-    name: 'Downloads'
-    description: 'Downloads'
+    name: 'Media'
+    description: 'Media Services'
     icon: 'lucide:download'
     enabled: true
     links:
+      - type: 'LINK'
+        name: 'Jellyfin'
+        url: 'https://jellyfin.themysterymachine.net'
+        description: 'Media Server'
+        icon: 'asset:svg:jellyfin'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'TV Shows'
+        url: 'https://sonarr.themysterymachine.net'
+        description: 'TV Shows'
+        icon: 'lucide:tv'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'Movies'
+        url: 'https://radarr.themysterymachine.net'
+        description: 'Movies'
+        icon: 'lucide:film'
+        enabled: true
+
       - type: 'LINK'
         name: 'NZBGet'
         url: 'https://nzbget.themysterymachine.net'
