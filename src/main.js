@@ -1,5 +1,5 @@
 import './assets/main.css'
-import 'vue3-grid-layout/dist/style.css'
+import 'vue3-grid-layout/public/app.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
