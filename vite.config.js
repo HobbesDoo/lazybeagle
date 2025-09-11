@@ -10,6 +10,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      // Ensure any references to the package CSS resolve to our vendored stylesheet
+      'vue3-grid-layout/dist/style.css': fileURLToPath(
+        new URL('./src/vendor/vue3-grid-layout.css', import.meta.url)
+      ),
     },
   },
   // Commented out proxy due to network issues - will use direct URLs with better fallback
