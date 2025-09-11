@@ -1,5 +1,6 @@
 import './assets/main.css'
-import 'vue3-grid-layout/public/app.css'
+// Use local vendor CSS instead of package's public path to avoid resolution issues
+import './vendor/vue3-grid-layout.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
