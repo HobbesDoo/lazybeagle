@@ -381,6 +381,9 @@ const fetchReleases = async () => {
     if (!serviceConfig) {
       throw new Error(`${props.serviceType} service not configured`)
     }
+    if (!serviceConfig.url) {
+      throw new Error(`${props.serviceType} service URL missing in services.yaml`)
+    }
 
     const baseUrl = (serviceConfig.url || '').replace(/\/$/, '')
     const endpoint = props.serviceType === 'sonarr' ? '/api/v3/calendar' : '/api/v3/calendar'

@@ -10,6 +10,9 @@ SHELL ["/bin/sh","-eux","-o","pipefail","-c"]
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Rebuild esbuild to ensure correct platform binary and metadata
+RUN npm rebuild esbuild || true
+
 # sources + build
 COPY . .
 RUN npm run build
