@@ -12,8 +12,6 @@
       :i="String(card.i ?? idx)" :min-w="card.minW" :max-w="card.maxW" :min-h="card.minH" :max-h="card.maxH"
       :static="card.static" :is-draggable="card.isDraggable" :is-resizable="card.isResizable">
       <component :is="resolveCardComponent(card.component)" v-bind="card.props" />
-      <!-- Optional: use getItemName(card) wherever you need a label -->
-      <p @src="justCrap" />
     </GridItem>
   </GridLayout>
 </template>
@@ -37,8 +35,6 @@ const props = defineProps({
   isResizable: { type: Boolean, default: true },
   useCssTransforms: { type: Boolean, default: true }
 })
-
-const justCrap = getItemName([]) && resolvedMap;
 
 function resolveCardComponent(comp) {
   if (!comp) return null
@@ -64,3 +60,17 @@ const resolvedMap = computed(() =>
 )
 
 </script>
+
+<style scoped>
+/* Ensure the grid consumes available width */
+:deep(.vue-grid-layout) {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  :deep(.vue-grid-item) {
+    /* Slightly larger hit targets on mobile when editing */
+    touch-action: manipulation;
+  }
+}
+</style>
