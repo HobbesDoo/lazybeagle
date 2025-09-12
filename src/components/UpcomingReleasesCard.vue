@@ -369,11 +369,11 @@ const fetchReleases = async () => {
           normalized.title = `${item.series?.title || 'Unknown Series'} - S${String(
             item.seasonNumber || 0,
           ).padStart(2, '0')}E${String(item.episodeNumber || 0).padStart(2, '0')}`
+          // Only care about airDateUtc
           normalized.airDate = item.airDateUtc || null
         } else {
-          // Try multiple Radarr date fields in order of usefulness
-          const date =
-            item.digitalRelease || null
+          // Only care about digital releases
+          const date = item.digitalRelease || null
           normalized.title = item.title || item.originalTitle || 'Upcoming Movie'
           normalized.airDate = date
         }
