@@ -6,22 +6,15 @@
 -->
 
 <template>
-  <BaseCard
-    :grid-width="gridWidth"
-    :grid-height="gridHeight"
-    :grid-column-start="gridColumnStart"
-    :grid-row-start="gridRowStart"
-    variant="default"
-    :loading="loading"
-    :style="{
+  <BaseCard :grid-width="gridWidth" :grid-height="gridHeight" :grid-column-start="gridColumnStart"
+    :grid-row-start="gridRowStart" variant="default" :loading="loading" :style="{
       '--card-title-font-size': '0.95rem',
       '--card-header-padding': '12px 12px 0 20px',
       '--card-content-padding': '8px 12px 12px',
       '--card-background': 'rgba(255, 255, 255, 0.10)',
       '--card-border-color': 'rgba(255, 255, 255, 0.20)',
       backdropFilter: 'blur(20px)',
-    }"
-  >
+    }">
     <template #header>
       <div class="card-header-row">
         <div class="card-title-row">
@@ -29,41 +22,15 @@
           <h3 class="card-title-text">{{ title }}</h3>
         </div>
         <div class="nav-header-controls">
-          <button
-            v-if="canScrollLeft"
-            class="nav-button header"
-            @click="scrollBy(-1)"
-            aria-label="Scroll left"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+          <button v-if="canScrollLeft" class="nav-button header" @click="scrollBy(-1)" aria-label="Scroll left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
           </button>
-          <button
-            v-if="canScrollRight"
-            class="nav-button header"
-            @click="scrollBy(1)"
-            aria-label="Scroll right"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+          <button v-if="canScrollRight" class="nav-button header" @click="scrollBy(1)" aria-label="Scroll right">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
@@ -80,57 +47,23 @@
       </div>
 
       <div v-else class="releases-wrapper">
-        <button
-          v-if="canScrollLeft"
-          class="nav-button nav-left"
-          @click="scrollBy(-1)"
-          aria-label="Scroll left"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+        <button v-if="canScrollLeft" class="nav-button nav-left" @click="scrollBy(-1)" aria-label="Scroll left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
 
-        <div
-          class="releases-grid"
-          ref="releasesGridRef"
-          :style="{ '--poster-item-width': posterItemWidth + 'px' }"
-        >
-          <div
-            v-for="release in displayReleases"
-            :key="release.id"
-            class="release-item"
-            :class="{ 'placeholder-item': release.isPlaceholder }"
-            :title="release.isPlaceholder ? '' : release.title"
-          >
+        <div class="releases-grid" ref="releasesGridRef" :style="{ '--poster-item-width': posterItemWidth + 'px' }">
+          <div v-for="release in displayReleases" :key="release.id" class="release-item"
+            :class="{ 'placeholder-item': release.isPlaceholder }" :title="release.isPlaceholder ? '' : release.title">
             <!-- Poster -->
-            <div
-              class="poster-container"
-              @click="!release.isPlaceholder && openDetails(release)"
-              :class="{ clickable: !release.isPlaceholder }"
-            >
+            <div class="poster-container" @click="!release.isPlaceholder && openDetails(release)"
+              :class="{ clickable: !release.isPlaceholder }">
               <!-- Try to load poster, but always show placeholder as backup -->
-              <div
-                class="poster-placeholder"
-                :class="{ 'empty-placeholder': release.isPlaceholder }"
-              >
-                <img
-                  v-if="release.poster && !release.isPlaceholder"
-                  :src="release.poster"
-                  :alt="release.title"
-                  class="poster-image"
-                  @error="handleImageError"
-                  @load="handleImageLoad"
-                />
+              <div class="poster-placeholder" :class="{ 'empty-placeholder': release.isPlaceholder }">
+                <img v-if="release.poster && !release.isPlaceholder" :src="release.poster" :alt="release.title"
+                  class="poster-image" @error="handleImageError" @load="handleImageLoad" />
                 <span v-if="!release.isPlaceholder" class="placeholder-icon">{{
                   serviceType === 'sonarr' ? '📺' : '🎬'
                 }}</span>
@@ -149,35 +82,17 @@
           </div>
         </div>
 
-        <button
-          v-if="canScrollRight"
-          class="nav-button nav-right"
-          @click="scrollBy(1)"
-          aria-label="Scroll right"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+        <button v-if="canScrollRight" class="nav-button nav-right" @click="scrollBy(1)" aria-label="Scroll right">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
       </div>
     </div>
   </BaseCard>
-  <UpcomingReleaseDetails
-    :is-open="isDetailsOpen"
-    :release="detailsRelease"
-    :poster="detailsPoster"
-    :service-type="serviceType"
-    @close="isDetailsOpen = false"
-  />
+  <UpcomingReleaseDetails :is-open="isDetailsOpen" :release="detailsRelease" :poster="detailsPoster"
+    :service-type="serviceType" @close="isDetailsOpen = false" />
 </template>
 
 <script setup>
@@ -454,11 +369,11 @@ const fetchReleases = async () => {
           normalized.title = `${item.series?.title || 'Unknown Series'} - S${String(
             item.seasonNumber || 0,
           ).padStart(2, '0')}E${String(item.episodeNumber || 0).padStart(2, '0')}`
-          normalized.airDate = item.airDateUtc || item.airDate || item.releaseDate || null
+          normalized.airDate = item.airDateUtc || null
         } else {
           // Try multiple Radarr date fields in order of usefulness
           const date =
-            item.digitalRelease || item.inCinemas || item.physicalRelease || item.releaseDate || null
+            item.digitalRelease || null
           normalized.title = item.title || item.originalTitle || 'Upcoming Movie'
           normalized.airDate = date
         }
@@ -635,7 +550,8 @@ const resetScroll = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-left: 6px; /* additional nudge to the right */
+  padding-left: 6px;
+  /* additional nudge to the right */
 }
 
 .card-title-text {
@@ -666,19 +582,23 @@ const resetScroll = () => {
   padding: 8px;
   height: 100%;
   overflow-x: auto;
-  overflow-y: hidden; /* keep row height stable */
+  overflow-y: hidden;
+  /* keep row height stable */
   justify-content: start;
   align-items: start;
-  min-height: 160px; /* allow smaller cards */
+  min-height: 160px;
+  /* allow smaller cards */
 }
 
 /* Hide scrollbar visuals to avoid layout shift */
 .releases-grid {
   scrollbar-width: none;
 }
+
 .releases-grid::-webkit-scrollbar {
   height: 0;
 }
+
 .nav-button {
   position: absolute;
   top: 50%;
@@ -695,15 +615,18 @@ const resetScroll = () => {
   justify-content: center;
   cursor: pointer;
 }
+
 .nav-button.header {
   position: static;
   transform: none;
   width: 24px;
   height: 24px;
 }
+
 .nav-left,
 .nav-right {
-  display: none; /* poster-overlay nav removed in favor of header controls */
+  display: none;
+  /* poster-overlay nav removed in favor of header controls */
 }
 
 .nav-header-controls {
@@ -745,7 +668,8 @@ const resetScroll = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain; /* keep full poster visible when downsized */
+  object-fit: contain;
+  /* keep full poster visible when downsized */
   border-radius: 8px;
   z-index: 2;
 }
