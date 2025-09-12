@@ -338,10 +338,3 @@ links:
         description: 'NAS'
         icon: 'asset:svg:ugreen-nas'
         enabled: true
-
-      - type: 'LINK'
-        name: 'Portainer'
-        url: 'https://portainer.themysterymachine.net'
-        description: 'Docker Management'
-        icon: 'asset:svg:portainer'
-        enabled: true
