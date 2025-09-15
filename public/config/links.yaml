@@ -103,7 +103,13 @@ links:
       - type: 'LINK'
         name: 'Realtor'
         url: 'https://realtor.ca'
-        description: 'Shopping'
+        description: 'Real Estate Listings'
+        enabled: true
+
+      - type: 'LINK'
+        name: 'Houseful'
+        url: 'https://www.houseful.ca'
+        description: 'Search for house by RBC'
         enabled: true
 
       - type: 'LINK'
