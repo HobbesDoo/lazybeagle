@@ -126,7 +126,7 @@ links:
 
       - type: 'LINK'
         name: 'Rona'
-        url: 'https://rona.cs'
+        url: 'https://rona.ca'
         description: 'Rona Hardware Store'
         enabled: true
 
@@ -139,7 +139,7 @@ links:
     links:
       - type: 'LINK'
         name: 'RBC'
-        url: 'https://royalbank.com'
+        url: 'https://www.rbcroyalbank.com/'
         description: 'RBC'
         enabled: true
 
@@ -233,6 +233,13 @@ links:
     enabled: true
     links:
       - type: 'LINK'
+        name: 'Forgejo'
+        url: 'https://forgejo.themysterymachine.net'
+        description: 'Git Server'
+        icon: 'asset:svg:forgejo'
+        enabled: true
+
+      - type: 'LINK'
         name: 'n8n'
         url: 'https://n8n.themysterymachine.net'
         description: 'n8n'
@@ -309,13 +316,6 @@ links:
         url: 'https://pihole.themysterymachine.net'
         description: 'DNS Filter'
         icon: 'asset:svg:pi-hole'
-        enabled: true
-
-      - type: 'LINK'
-        name: 'Forgejo'
-        url: 'https://forgejo.themysterymachine.net'
-        description: 'Git Server'
-        icon: 'asset:svg:forgejo'
         enabled: true
 
       - type: 'LINK'
