@@ -8,41 +8,15 @@
             <div class="lgp-title">{{ title || 'Links' }}</div>
           </div>
           <div class="lgp-header-controls">
-            <button
-              v-if="canScrollUp"
-              class="nav-button header"
-              @click="scrollBy(-1)"
-              aria-label="Scroll up"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+            <button v-if="canScrollUp" class="nav-button header" @click="scrollBy(-1)" aria-label="Scroll up">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="18 15 12 9 6 15"></polyline>
               </svg>
             </button>
-            <button
-              v-if="canScrollDown"
-              class="nav-button header"
-              @click="scrollBy(1)"
-              aria-label="Scroll down"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+            <button v-if="canScrollDown" class="nav-button header" @click="scrollBy(1)" aria-label="Scroll down">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </button>
@@ -50,32 +24,15 @@
           </div>
         </header>
         <div class="lgp-grid" ref="bodyRef" @scroll="updateScrollState">
-          <button
-            v-for="(link, idx) in links"
-            :key="idx"
-            class="lgp-item"
-            @click="handleItemClick($event, link, idx)"
-            :title="link.description || link.name"
-          >
+          <button v-for="(link, idx) in links" :key="idx" class="lgp-item" @click="handleItemClick($event, link, idx)"
+            :title="link.description || link.name">
             <div class="lgp-icon">
               <img v-if="link.iconUrl" :src="link.iconUrl" :alt="`${link.name} icon`" />
               <IconRenderer v-else-if="link.icon" :icon="link.icon" :size="22" />
               <IconRenderer v-else :url="link.url" :size="22" />
-              <div
-                v-if="(link.type || 'LINK') === 'GROUP'"
-                class="group-indicator inside"
-                aria-hidden="true"
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
+              <div v-if="(link.type || 'LINK') === 'GROUP'" class="group-indicator inside" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
               </div>
@@ -160,7 +117,7 @@ const panelStyle = computed(() => {
         maxCap,
       },
     })
-  } catch {}
+  } catch { /* empty */ }
   let top = 80
   let maxHeight = maxCap
   let transform = 'translateY(0)'
@@ -319,11 +276,13 @@ onUnmounted(() => {
   padding: 6px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
+
 .lgp-header-controls {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+
 .nav-button.header {
   background: transparent;
   border: none;
@@ -331,14 +290,17 @@ onUnmounted(() => {
   opacity: 0.7;
   cursor: pointer;
 }
+
 .nav-button.header:hover {
   opacity: 1;
 }
+
 .lgp-title-row {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+
 .lgp-title {
   font-size: 0.8rem;
   font-weight: 600;
@@ -427,6 +389,7 @@ onUnmounted(() => {
   opacity: 0.8;
   color: rgba(255, 255, 255, 0.9);
 }
+
 .group-indicator.inside {
   position: absolute;
   top: 4px;

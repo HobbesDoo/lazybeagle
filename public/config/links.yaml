@@ -145,7 +145,7 @@ links:
     links:
       - type: 'LINK'
         name: 'RBC'
-        url: 'https://www.rbcroyalbank.com/'
+        url: 'https://secure.royalbank.com/statics/login-service-ui/index#/full/signin?LANGUAGE=ENGLISH'
         description: 'RBC'
         enabled: true
 
